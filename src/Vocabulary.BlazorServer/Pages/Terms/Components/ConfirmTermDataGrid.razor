@@ -1,0 +1,88 @@
+﻿@using Vocabulary.Terms.DataContracts
+
+<div>
+    <MudDataGrid T="ConfirmImportingTerm"
+                 Class="mt-6"
+                 ReadOnly="@true"
+                 MultiSelection="true" 
+                 Items="@_confirmImportingTerms" 
+                 Sortable="true" 
+                 Filterable="true" 
+                 QuickFilter="@_quickFilter"
+                 Hideable="true"
+                 EditMode="@DataGridEditMode.Form"
+                 EditTrigger="@DataGridEditTrigger.Manual"
+                 RowsPerPage="100"
+                 Breakpoint="Breakpoint.None"
+                 Virtualize="@true"
+                 Loading="@_isLoading"
+                 LoadingProgressColor="Color.Info"
+                 FixedHeader="@true"
+
+    >
+        <ToolBarContent>
+            <MudStack Style="width: 100%;">
+                <MudText Typo="Typo.h6">@Title</MudText>
+
+                <MudStack Row="@true" Class="flex-wrap" AlignItems="AlignItems.Center">
+                    <MudButton Color="Color.Success" 
+                               StartIcon="@Icons.Material.Filled.Save" 
+                               Variant="Variant.Filled"
+                               Class="mr-16"
+                               OnClick="@StoreSelectedTerms"
+                               >
+                        Save
+                    </MudButton>
+
+                    <MudButtonGroup OverrideStyles="@false" Variant="Variant.Outlined">
+                        <MudToggleTextButton Title="Search in names"
+                                             Text="MNm"
+                                             Color="@Color.Default"
+                                             ToggledColor="@Color.Primary"
+                                             Variant="Variant.Filled"
+                                             DisableElevation="@true"
+                                             @bind-Toggled="@_searchInNames"
+                                             Size="Size.Small"
+                                             />
+                        <MudToggleTextButton Title="Search in additional names"
+                                             Text="ANm"
+                                             Color="@Color.Default"
+                                             ToggledColor="@Color.Primary"
+                                             Variant="Variant.Filled"
+                                             DisableElevation="@true"
+                                             @bind-Toggled="@_searchInAdditionsNames"
+                                             Size="Size.Small"
+                                             />
+                        <MudToggleTextButton Title="Search in synonyms"
+                                             Text="Syn"
+                                             Color="@Color.Default"
+                                             ToggledColor="@Color.Primary"
+                                             Variant="Variant.Filled"
+                                             DisableElevation="@true"
+                                             @bind-Toggled="@_searchInSynonyms"
+                                             Size="Size.Small"
+                                             />
+                    </MudButtonGroup>
+                    
+
+                    <MudSpacer />
+                    
+                    <MudTextField @bind-Value="_searchString" 
+                                  Placeholder="Search" 
+                                  Adornment="Adornment.Start" 
+                                  Immediate="true"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" 
+                                  IconSize="Size.Medium" 
+                                  Class="mt-0 term-search-input" />
+                </MudStack>
+            </MudStack>
+        </ToolBarContent>
+
+        <Columns>
+            @Columns
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="ConfirmImportingTerm" />
+        </PagerContent>
+    </MudDataGrid>
+</div>

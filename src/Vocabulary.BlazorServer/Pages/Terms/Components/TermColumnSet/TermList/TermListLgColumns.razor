@@ -1,0 +1,93 @@
+﻿@using Vocabulary.Adapters.Persistance.Models
+
+@inherits TermListActions
+
+@*<SelectColumn T="Term" />*@
+
+<Column T="Term" Field="Sequence" Title="#" Sortable="true" Filterable="false" CellClass="sequence-column" />
+
+<!-- Name -->
+<Column T="Term" Title="Term" SortBy="@(term => term.Name)"  CellClass="term-column">
+    <CellTemplate>
+        <MudText Typo="Typo.h6" Style="color: var(--mud-palette-warning-lighten);">@context.Item.Name</MudText>
+        @if (!string.IsNullOrWhiteSpace(context.Item.AdditionalName)) {
+            <MudText Typo="Typo.subtitle1" Style="color: #FFDF9D;">(@context.Item.AdditionalName)</MudText>
+        }
+
+        <div class="mt-5">
+            <MudText Typo="Typo.body2" Class="d-inline-block pr-1" ><b>Categories</b>:</MudText>
+            @if (context.Item.Categories.Any()) 
+            {
+                @foreach (var item in context.Item.Categories.Take(context.Item.Categories.Count - 1))
+                {
+                    <MudText Typo="Typo.body2" Class="d-inline-block">@(item.Name),</MudText>
+                }
+
+                <MudText Typo="Typo.body2" Class="d-inline-block">@(context.Item.Categories.Last().Name).</MudText>
+            }
+            else {
+                <MudText Typo="Typo.body2" Class="d-inline-block"><i>no categories</i>.</MudText>
+            }
+        </div>
+    </CellTemplate>
+</Column>
+
+<!-- Description -->
+<Column T="Term" Title="Description" Sortable="false" CellStyle="@BroadestColumnMinWidth">
+    <CellTemplate>
+        <div>
+            <MudMarkdown Value="@context.Item.Description" />
+        </div>
+        @if (context.Item.Links.Any()) {
+            <MudText Typo="@Typo.subtitle2" Class="mt-3" >see also:</MudText>
+            <MudList Clickable="false" Class="p-0">
+                @foreach (var item in context.Item.Links)
+                {
+                    <MudListItem>
+                        <MudLink Href="@item.Href" Typo="Typo.body2">@(item.ResourceDescription ?? item.Href)</MudLink>
+                    </MudListItem>
+                }
+            </MudList>
+        }
+    </CellTemplate>
+</Column>
+
+<!-- ValidationRules -->
+<Column T="Term" Title="Validation Rules" Sortable="false" CellStyle="@BroadestColumnMinWidth">
+    <CellTemplate>
+        <div>
+            <MudMarkdown Value="@context.Item.ValidationRules" />
+        </div>
+    </CellTemplate>
+</Column>
+
+<!-- Synonyms -->
+<Column T="Term" Title="Synonyms" Sortable="false">
+    <CellTemplate>
+        @if (context.Item.Synonyms.Any()) 
+        {
+            @*<MudText Typo="Typo.body2" Class="d-inline-block pr-1"><b>Synonyms</b>:</MudText>*@
+
+            @foreach (var item in context.Item.Synonyms.Take(context.Item.Synonyms.Count - 1))
+            {
+                <MudText Typo="Typo.body2" Class="d-inline-block pr-1">@(item.Name),</MudText>
+            }
+
+            <MudText Typo="Typo.body2" Class="d-inline-block">@(context.Item.Synonyms.Last().Name).</MudText>
+        }
+        @*else {
+            <MudText Typo="Typo.body2" Class="d-inline-block"><i>no synonyms</i>.</MudText>
+        }*@
+    </CellTemplate>
+</Column>
+
+<Column T="Term" Sortable="false">
+    <CellTemplate>
+        <TermMenu Compact="true"
+                  OnEditRequested="@(() => OnNavigateToEdit(context.Item.Id.ToString()))"
+                  OnCreateFromCopyRequested="@(() => OnNavigateToCopy(context.Item.Id.ToString()))"
+                  OnGenerateLinksRequested="@(() => OnCheckDecriptionTerms(context.Item.Id))"
+                  OnRemoveRequested="@(() => OnRemoveTerm(context.Item.Id))"
+                  />
+    </CellTemplate>
+</Column>

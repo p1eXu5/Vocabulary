@@ -1,0 +1,25 @@
+﻿@inherits LayoutComponentBase
+
+<PageTitle>Vocabulary</PageTitle>
+
+<MudThemeProvider IsDarkMode="@true" Theme="@VocabularyTheme" />
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudAppBar Elevation="0" Dense="@dense" Color="Color.Transparent">
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/p1eXu5/Vocabulary" Target="_blank" />
+    </MudAppBar>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="@MaxWidth.ExtraLarge">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code{
+    bool dense = false;
+    VocabularyMudTheme VocabularyTheme = new();
+}

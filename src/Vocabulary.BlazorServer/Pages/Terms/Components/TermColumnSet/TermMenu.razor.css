@@ -1,0 +1,11 @@
+﻿::deep.term-toolbar-menu {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    justify-content: end;
+}
+
+::deep.term-toolbar-menu > .mud-button {
+    width: 25%;
+    max-width: 9rem;
+}

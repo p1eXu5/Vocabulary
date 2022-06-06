@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+    vocabulary:
+        build:
+            context: .
+            dockerfile: "./src/Vocabulary.BlazorServer/Dockerfile"
+            network: host
+        restart: "no"
+        ports:
+            - "192.168.0.10:39577:80"
+        container_name: vocabulary
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Production
+            - ConnectionStrings__VocabularyDb=Data Source = /db/Vocabulary.db
+        volumes:
+            - ${DB_PATH}:/db/

@@ -1,0 +1,56 @@
+﻿@using Vocabulary.Terms
+@inherits LayoutComponentBase
+
+<PageTitle>Vocabulary</PageTitle>
+ 
+<MudThemeProvider IsDarkMode="@true" Theme="@VocabularyTheme"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudAppBar Elevation="1" Dense="@_dense">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+
+        <MudHidden Breakpoint="Breakpoint.SmAndDown">
+            <MudLink Typo="Typo.h5" Href="/" Underline="Underline.None" Color="Color.Surface">Vocabulary</MudLink>
+        </MudHidden>
+        
+        <ExportImport @bind-IsLoading="@_isLoading" Class="ml-4" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/p1eXu5/Vocabulary" Target="_blank" />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="@_open" ClipMode="_clipMode" Elevation="1" Variant="@DrawerVariant.Responsive">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">Vocabulary</MudText>
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="@MaxWidth.ExtraLarge">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+
+<MudOverlay Visible="_isLoading" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+
+@code{
+    VocabularyMudTheme VocabularyTheme = new();
+
+    private bool _open = true;
+    private bool _dense = false;
+
+    private bool _isLoading;
+
+    private DrawerClipMode _clipMode = DrawerClipMode.Never;
+
+    void ToggleDrawer()
+    {
+        _open = !_open;
+    }
+}

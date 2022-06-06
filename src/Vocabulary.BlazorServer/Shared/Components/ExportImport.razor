@@ -1,0 +1,133 @@
+﻿@using Vocabulary.Terms
+@using Vocabulary.Terms.Enums
+
+@inherits ComponentBase
+@implements IAsyncDisposable
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject IWebHostEnvironment Environment
+@inject ILogger<MainLayout> Logger
+@inject ISnackbar Snackbar
+
+<InputFile id="fileInput" OnChange="ImportTerms" hidden accept=".md" />
+
+<MudStack Row="@true" Class="@Class">
+    <MudButton HtmlTag="label"
+               Variant="Variant.Outlined"
+               Color="Color.Secondary"
+               StartIcon="@Icons.Filled.CloudUpload"
+               Size="Size.Small"
+               for="fileInput">
+        Import Terms
+    </MudButton>
+    <MudButton Variant="Variant.Outlined"
+                Color="Color.Secondary"
+                StartIcon="@Icons.Filled.CloudDownload"
+                Size="Size.Small"
+                OnClick="ExportTerms"
+                >
+        Export Terms
+    </MudButton>
+</MudStack>
+
+@code {
+
+    protected bool _isLoading = false;
+    private IJSObjectReference? _module;
+
+    [Parameter]
+    public bool IsLoading { private get; set; }
+
+    [Parameter]
+    public string Class { private get; set; } = "";
+
+    [Parameter]
+    public EventCallback<bool> IsLoadingChanged { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _isLoading = IsLoading;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) {
+            _module = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./Shared/Components/ExportImport.razor.js");
+        }
+    }
+
+    protected async Task ImportTerms(InputFileChangeEventArgs e)
+    {
+        _isLoading = true;
+        await IsLoadingChanged.InvokeAsync(true);
+
+        IBrowserFile file = e.File;
+
+        // Don't trust file names supplied by clients
+        string trustedFileName = Path.GetRandomFileName();
+
+        try
+        {
+            string path = Path.Combine(Environment.ContentRootPath,
+                Environment.EnvironmentName, "unsafe_uploads", trustedFileName);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+
+            await using FileStream fileStream = new(path, FileMode.Create);
+
+            using Stream readStream = file.OpenReadStream();
+            await readStream.CopyToAsync(fileStream);
+
+            await fileStream.DisposeAsync();
+
+            var commandResult = await Mediator.Send(new ImportTermsCommand(path, ComparingNames.CombinedMainOrAdditional));
+
+            if (commandResult.TryGetSucceededContext(out string? confirmImportingTerms))
+            {
+                // open import result dialog
+                //NavigationManager.NavigateTo("confirm-import/" + confirmImportingTerms);
+                _isLoading = false;
+                await IsLoadingChanged.InvokeAsync(false);
+
+                await JS.InvokeAsync<object>("open", "confirm-import/" + confirmImportingTerms, "_blank");
+            }
+            else
+            {
+                Snackbar.Add(commandResult.FailedContext, Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            var errorMessage = string.Format("File: {0} Error: {1}", file.Name, ex.Message);
+            Logger.LogError(ex, errorMessage);
+            Snackbar.Add(errorMessage, Severity.Error);
+        }
+
+        _isLoading = false;
+        await IsLoadingChanged.InvokeAsync(false);
+    }
+
+
+
+    protected async Task ExportTerms()
+    {
+        var uriResult = await Mediator.Send(new ExportTermsCommand());
+
+        if (uriResult.TryGetSucceededContext(out var stream)) 
+        {
+            var fileName = "vocabulary.md";
+            using var streamRef = new DotNetStreamReference(stream: stream);
+
+            await _module!.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_module is not null) {
+            await _module.DisposeAsync();
+        }
+    }
+}

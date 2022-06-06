@@ -1,0 +1,46 @@
+﻿::deep .mud-markdown-body > pre > code {
+    white-space: pre-line;
+    background: #1E1E1E;
+    color: #C3C3C5;
+}
+
+::deep .mud-list {
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+::deep .mud-list-item {
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+::deep .mud-list-item-text {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+::deep .sequence-column {
+    text-align: center;
+}
+
+::deep .term-column {
+}
+
+::deep .mud-data-grid > .mud-table-toolbar {
+    height: 100% !important;
+    padding-top: 8px !important;
+}
+
+::deep .mud-data-grid > .mud-table-toolbar .mud-menu {
+    align-self: end;
+    padding-bottom: 0.2rem;
+    padding-left: 1rem;
+}
+
+::deep .term-search-input {
+    min-width: 8rem;
+}
+
+::deep .mud-data-grid > .mud-table-toolbar .mud-input-control > .mud-input-control-input-container > div.mud-input.mud-input-text {
+    margin-top: 0;
+}

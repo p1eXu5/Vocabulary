@@ -1,0 +1,179 @@
+﻿@page "/term/{termId}"
+@page "/term/create"
+@using Vocabulary.Adapters.Persistance.Models
+@using Vocabulary.BlazorServer.Pages.Terms.Components
+@using Vocabulary.Terms.Abstractions
+@using Vocabulary.Terms.DataContracts
+
+
+<PageTitle>@_action @_term.Name</PageTitle>
+
+<EditForm Model="@_term" Context="term" OnValidSubmit="@OnValidTermSubmit">
+    <DataAnnotationsValidator/>
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">@_action @_term.Name</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <MudExpansionPanels MultiExpansion="true" Elevation="3">
+
+                <MudExpansionPanel Text="Term" @bind-IsExpanded="@_termExpanded">
+                    <!-- Names -->
+                    <MudTextField Label="Term" HelperText="Max. 255 characters" @bind-Value="@_term.Name" For="@(() => _term.Name)"  
+                                  DebounceInterval="500" 
+                                  OnDebounceIntervalElapsed="CheckSimilarTerms" />
+
+                    @if (_similarTermNames.Any())
+                    {
+                        @foreach (TermNames termName in _similarTermNames.Take(_similarTermNames.Count - 1))
+                        {
+                            <MudButtLink OnClick="@(() => NavigateToExistingTerm(termName.Name))" StopPropagation="true">
+                                @if (!string.IsNullOrWhiteSpace(termName.AdditionalName))
+                                {
+                                    <span>@termName.Name (@termName.AdditionalName),</span>
+                                }
+                                else {
+                                    <span>@termName.Name</span>
+                                }
+                            </MudButtLink>
+
+                           @* <MudText Typo="Typo.body2" Class="d-inline-block">
+                                @if (termName.AdditionalName.NotNullOrWhiteSpace())
+                                {
+                                    <span>@termName.Name (@termName.AdditionalName),</span>
+                                }
+                                else {
+                                    <span>@termName.Name,</span>
+                                }
+                            </MudText>*@
+                        }
+
+                        ITermNames lastTermNames = _similarTermNames.Last();
+
+                        <MudButtLink OnClick="@(() => NavigateToExistingTerm(lastTermNames.Name))" StopPropagation="true">
+                            @if (!string.IsNullOrWhiteSpace(lastTermNames.AdditionalName))
+                            {
+                                <span>@lastTermNames.Name (@lastTermNames.AdditionalName).</span>
+                            }
+                            else {
+                                <span>@lastTermNames.Name.</span>
+                            }
+                        </MudButtLink>
+                    }
+
+                    <MudTextField Label="Additional Term" HelperText="Max. 255 characters" @bind-Value="@_term.AdditionalName" For="@(() => _term.AdditionalName)"/>
+                </MudExpansionPanel>
+
+                <MudExpansionPanel Text="Categories" @bind-IsExpanded="@_categoryExpanded">
+                    <!-- Categories -->
+                    <MudSelect Class="mt-3" T="@Category" Label="Categories" MultiSelection="true" SelectAll="true" SelectAllText="Select all categories" 
+                               SelectedValues="@_term.Categories" SelectedValuesChanged="@OnSelectedCategoriesChanged"
+                               AnchorOrigin="Origin.BottomCenter" MaxHeight="600" @bind-Text="@_value" AutoFocus="@false"
+                               Disabled="@_dialogIsShown"
+                               >
+                        @foreach (var category in _categories.OrderBy(c => c.Name))
+                        {
+                                <MudSelectItem T="Category" Value="@category">
+                                    <div class="d-flex">
+                                        @category.Name
+                                        <MudSpacer />
+                                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Outlined.Edit"  @onclick="@(async _ => await EditCategory(category.Id))" />
+                                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Outlined.DeleteForever"  @onclick="@(async _ => await DeleteCategory(category.Id))" />
+                                    </div>
+                                </MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4 mt-3" Elevation="0">
+                        <MudButton @onclick="CreateCategory" Variant="Variant.Outlined" Color="Color.Secondary">Create Category</MudButton>
+                    </MudPaper>
+                </MudExpansionPanel>
+
+                <!-- Description -->
+                <MudExpansionPanel Text="Description" @bind-IsExpanded="@_descriptionExpanded">
+                    <MudTabs Elevation="1" Rounded="true" PanelClass="pa-0">
+                        <MudTabPanel Text="Edit">
+                            <MudTextField Label="" @bind-Value="@_term.Description" For="@(() => _term.Description)" Lines="@Lines" />
+                        </MudTabPanel>
+                        <MudTabPanel Text="Preview">
+                            <MudMarkdown Value="@_term.Description" />
+                        </MudTabPanel>
+                    </MudTabs>
+                </MudExpansionPanel>
+
+                <!-- Links -->
+                <MudExpansionPanel Text="Links">
+                    @*@if (_term.Links.Any()) {
+                        @foreach (var link in _term.Links) {
+                            <MudTextField Label="@link.ResourceDescription" HelperText="Max. 255 characters" @bind-Value="@link.Href" For="@(() => link.Href)" Class="mt-6" />
+                        }
+                    }*@
+
+                    @if (_term.Links.Any()) {
+                        <LinkTable Links="@_term.Links" OnDelete="@DeleteLink"></LinkTable>
+                    }
+
+                    <MudCard  Class="my-7" Style="@($"background:{_mubTheme.Palette.Dark};")">
+                        <MudCardContent>
+                            <MudSwitch @bind-Checked="@_addSearchLink" Color="Color.Primary">Add Search Link</MudSwitch>
+                            <EditForm Model="@_newLink" Context="link" OnValidSubmit="@OnValidLinkSubmit">
+                                <DataAnnotationsValidator/>
+                                <div class="d-flex flex-row gap-4">
+                                    @if (!_addSearchLink) {
+                                        <MudTextField Label="Description" @bind-Value="@_newLink.ResourceDescription" For="@(() => _newLink.ResourceDescription)" />
+                                        <MudTextField Label="Href" @bind-Value="@_newLink.Href" For="@(() => _newLink.Href)"  Immediate="@true" />
+                                    }
+                                    else
+                                    {
+                                        <MudTextField Label="Terms" @bind-Value="@_newLink.Href" For="@(() => _newLink.Href)"  Immediate="@true" />
+                                    }
+                                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Text" Color="Color.Secondary" Class="ml-auto">Add</MudButton>
+                                </div>
+                            </EditForm>
+                        </MudCardContent>
+                    </MudCard>
+                </MudExpansionPanel>
+
+                <!-- Validation Rules -->
+                <MudExpansionPanel Text="Validation Rules">
+                    <MudTabs Elevation="1" Rounded="true" PanelClass="pa-0">
+                        <MudTabPanel Text="Edit">
+                            <MudTextField Label="" @bind-Value="@_term.ValidationRules" For="@(() => _term.ValidationRules)" Lines="@Lines" Immediate="true"/>
+                        </MudTabPanel>
+                        <MudTabPanel Text="Preview">
+                            <MudMarkdown Value="@_term.ValidationRules" />
+                        </MudTabPanel>
+                    </MudTabs>
+                </MudExpansionPanel>
+
+                <!-- Synonyms -->
+                <MudExpansionPanel Text="Synonyms">
+                    @if (_term.Synonyms.Any()) {
+                        @foreach (var synonym in _term.Synonyms) {
+                            <MudTextField Label="" HelperText="Max. 255 characters" @bind-Value="@synonym.Name" For="@(() => synonym.Name)" Class="mt-3" />
+                        }
+                    }
+                    <MudCard  Class="mt-7" Style="@($"background:{_mubTheme.Palette.Dark};")">
+                        <MudCardContent>
+                            <EditForm Model="@_newSynonym" Context="synonym" OnValidSubmit="@OnValidSynonymSubmit">
+                                <DataAnnotationsValidator/>
+                                <div class="d-flex flex-row gap-4">
+                                    <MudTextField Label="New Synonym" @bind-Value="@_newSynonym.Name" For="@(() => _newSynonym.Name)"  Immediate="@true" />
+                                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Text" Color="Color.Secondary" Class="ml-auto">Add</MudButton>
+                                </div>
+                            </EditForm>
+                        </MudCardContent>
+                    </MudCard>
+                </MudExpansionPanel>
+
+            </MudExpansionPanels>
+        </MudCardContent>
+
+        <MudCardActions>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">@_action</MudButton>
+        </MudCardActions>
+    </MudCard>
+</EditForm>

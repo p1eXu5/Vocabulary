@@ -1,0 +1,87 @@
+﻿@using Vocabulary.Adapters.Persistance.Models
+@inject IDbContextFactory<VocabularyDbContext> DbContextFactory
+@inject AppState AppState
+@implements IDisposable
+
+<MudDialog DefaultFocus="@DefaultFocus.None">
+    <DialogContent>
+        <EditForm id="category-form" Model="@_category" OnValidSubmit="@OnValidCategorySubmit">
+            <DataAnnotationsValidator/>
+            <MudTextField Label="Category Name" HelperText="Max. 255 characters" @bind-Value="@_category.Name" For="@(() => _category.Name)" Immediate="@true"/>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton form="category-form" ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">@_action</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public Guid? CategoryId { private get; set; }
+
+    private VocabularyDbContext _dbContext = default!;
+    private Category _category = new();
+    private string? _action;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _action =
+            CategoryId.HasValue
+                ? "Update"
+                : "Create";
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        return LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _dbContext = await DbContextFactory.CreateDbContextAsync();
+
+        if (CategoryId.HasValue) 
+        {
+            var dbCategory = await _dbContext.Categories.SingleOrDefaultAsync(t => t.Id == CategoryId);
+            if (dbCategory is not null) {
+                _category = dbCategory;
+            }
+        }
+    }
+
+    private async Task OnValidCategorySubmit()
+    {
+        AsyncEventArgs args = new();
+
+        if (CategoryId.HasValue) 
+        {
+            _dbContext.Categories.Update(_category);
+        }
+        else {
+            _dbContext.Add(_category);
+            args.NewCategoryId = _category.Id;
+        }
+
+        await _dbContext.SaveChangesAsync();
+
+        await AppState.NotifyCategoryChangedAsync(args);
+
+        MudDialog.Close(DialogResult.Ok(_category.Id));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    public void Dispose()
+    {
+        _dbContext?.Dispose();
+    }
+}

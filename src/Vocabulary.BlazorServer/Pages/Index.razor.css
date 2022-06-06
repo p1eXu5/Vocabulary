@@ -1,0 +1,97 @@
+﻿::deep#main-common-container,  ::deep#main-bg-container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: #0c0604;
+}
+
+::deep.flex-container-lg {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: center;
+}
+
+::deep.flex-container-lg > * {
+    flex-grow: 1;
+    width: 50%;
+}
+
+::deep .bg-book-right {
+    height: 100%;
+    background-image: url(images/book-bg.png);
+    background-repeat: no-repeat;
+    background-position: left center;
+}
+
+
+
+
+::deep#main-content-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: transparent;
+}
+
+::deep.flex-container-md {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: center;
+    align-content: center;
+}
+
+::deep.flex-container-md > * {
+    flex-grow: 1;
+}
+
+::deep.flex-container-md > .content {
+    flex-grow: 1;
+    padding-top: 15%;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.bg-book-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 70%;
+    width: 100vw;
+    background-image: url(images/book-bg-bottom.png);
+    background-repeat: no-repeat;
+    background-position: center top;
+}
+
+.bg-book-bottom {
+}
+
+
+
+::deep .title {
+    text-align: center;
+    font-family: 'Lora', serif; 
+    font-weight: normal; 
+    font-style: normal;
+}
+
+::deep .subtitle {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+    max-width: 34rem;
+    width: 100%;
+    text-align: justify;
+    text-align-last: center;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+
+

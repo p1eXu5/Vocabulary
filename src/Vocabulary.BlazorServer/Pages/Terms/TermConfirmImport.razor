@@ -1,0 +1,41 @@
+﻿@page "/confirm-import/{ConfirmImportingTermsKey}"
+@layout IndexLayout
+@inherits TermsPageBase
+@using MudBlazor.Services
+@using Vocabulary.BlazorServer.Pages.Terms.Components
+@using Vocabulary.BlazorServer.Pages.Terms.Components.TermColumnSet.ConfirmTerms
+@using System.Collections.Immutable
+@using Microsoft.Extensions.Caching.Memory
+@using Vocabulary.Terms.DataContracts
+
+
+<ConfirmTermDataGrid @ref="_confirmTermListComponent" ConfirmImportingTermsKey="@ConfirmImportingTermsKey">
+    <Columns>
+        <ConfirmTermListLgColumns NavigateToEdit="@OpenEditTermDrawer" 
+                                  IsNotInDbChanged="@_confirmTermListComponent!.ToggleIsNotInDb"
+                                  SelectedCategoriesChanged="@(t => _confirmTermListComponent.SetCategories(t.Item1, t.Item2))"
+                                  />
+    </Columns>
+</ConfirmTermDataGrid>
+
+<MudDrawer @bind-Open="@_open" Anchor="@_anchor" Elevation="1" Variant="DrawerVariant.Temporary" Width="50%">
+    <TermForm TermId="@_termId" />
+</MudDrawer>
+
+@code {
+    [Parameter]
+    public string ConfirmImportingTermsKey { private get; set; } = default!;
+
+    private bool _open;
+    private Anchor _anchor;
+    private ConfirmTermDataGrid? _confirmTermListComponent;
+
+    private string? _termId;
+
+    private void OpenEditTermDrawer(string termId)
+    {
+        this._anchor = Anchor.End;
+        _termId = termId;
+        _open = true;
+    }
+}

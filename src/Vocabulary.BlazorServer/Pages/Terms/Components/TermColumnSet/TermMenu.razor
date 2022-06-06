@@ -1,0 +1,58 @@
+﻿@using MudBlazor.Utilities
+@using Vocabulary.Adapters.Persistance.Models
+
+@inherits ComponentBase
+
+@if (Compact) {
+    <MudMenu Icon="@Icons.Material.Filled.Settings" Color="Color.Primary" Class="@CompactClassname">
+        <MudMenuItem><MudIconButton Title="Edit" Size="@Size.Medium" Icon="@Icons.Outlined.Edit" OnClick="@RaiseEditRequested" /></MudMenuItem>
+        <MudMenuItem><MudIconButton Title="Create from copy" Size="@Size.Medium" Icon="@Icons.Outlined.CopyAll" OnClick="@RaiseCreateFromCopyRequested" /></MudMenuItem>
+        <MudMenuItem><MudIconButton Title="Remove" Size="@Size.Medium" Icon="@Icons.Outlined.Remove" OnClick="@RaiseRemoveRequested" /></MudMenuItem>
+        <MudMenuItem><MudIconButton Title="Generate links in description" Size="@Size.Medium" Icon="@Icons.Outlined.FindReplace" OnClick="@RaiseGenerateLinksRequested" /></MudMenuItem>
+    </MudMenu>
+}
+else
+{
+    <div class="@NotCompactClassname">
+        <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" OnClick="@RaiseEditRequested">Edit</MudButton>
+        <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Warning" OnClick="@RaiseCreateFromCopyRequested">Copy</MudButton>
+        <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Error" OnClick="@RaiseRemoveRequested">Remove</MudButton>
+        <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Info" OnClick="@RaiseGenerateLinksRequested">Terms</MudButton>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public bool Compact { private get; set; }
+
+    [Parameter]
+    public string Class { get; set; } = "";
+
+    [Parameter]
+    public EventCallback OnEditRequested { get; set; }
+
+    [Parameter]
+    public EventCallback OnCreateFromCopyRequested { get; set; }
+
+    [Parameter]
+    public EventCallback OnRemoveRequested { get; set; }
+
+    [Parameter]
+    public EventCallback OnGenerateLinksRequested { get; set; }
+
+    protected string NotCompactClassname =>
+        new CssBuilder("term-toolbar-menu gap-2")
+          .AddClass(Class)
+        .Build();
+
+    protected string CompactClassname =>
+        CssBuilder.Empty()
+          .AddClass(Class)
+        .Build();
+
+    private Task RaiseEditRequested() => OnEditRequested.InvokeAsync();
+    private Task RaiseCreateFromCopyRequested() => OnCreateFromCopyRequested.InvokeAsync();
+    private Task RaiseGenerateLinksRequested() => OnGenerateLinksRequested.InvokeAsync();
+    private Task RaiseRemoveRequested() => OnRemoveRequested.InvokeAsync();
+}

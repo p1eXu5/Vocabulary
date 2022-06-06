@@ -1,0 +1,21 @@
+﻿@page "/"
+@layout IndexLayout
+
+<PageTitle>Vocabulary</PageTitle>
+
+<MudHidden Breakpoint="Breakpoint.LgAndUp" Invert="@true">
+    <div id="main-common-container" class="flex-container-lg">
+        <IndexContent/>
+        <div class="bg-book-right"></div>
+    </div>
+</MudHidden>
+
+<MudHidden Breakpoint="Breakpoint.MdAndDown" Invert="@true">
+
+    <div id="main-bg-container" class="flex-container-md">
+        <div class="bg-book-bottom"></div>
+    </div>
+    <div id="main-content-container" class="flex-container-md">
+        <IndexContent  />
+    </div>
+</MudHidden>

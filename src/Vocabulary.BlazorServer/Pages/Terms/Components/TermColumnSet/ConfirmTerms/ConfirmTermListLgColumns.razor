@@ -1,0 +1,88 @@
+﻿@using Vocabulary.Terms.DataContracts
+
+@inherits ConfirmTermListActions
+
+<Column T="ConfirmImportingTerm" Title="" SortBy="@(term => term.IsNotInDb)" >
+    <CellTemplate>
+        <MudCheckBox T="bool" Checked="@context.Item.IsNotInDb" CheckedChanged="@(_ => OnIsNotInDbChanged(context.Item.ImportingTerm.Id))"></MudCheckBox>
+    </CellTemplate>
+</Column>
+
+<!-- Name -->
+<Column T="ConfirmImportingTerm" Title="Term" SortBy="@(term => term.ImportingTerm.Name)"  CellClass="term-column">
+    <CellTemplate>
+        <MudText Typo="Typo.h6" Style="color: var(--mud-palette-warning-lighten);">@context.Item.ImportingTerm.Name</MudText>
+        @if (!string.IsNullOrWhiteSpace(context.Item.ImportingTerm.AdditionalName)) {
+            <MudText Typo="Typo.subtitle1" Style="color: #FFDF9D;">(@context.Item.ImportingTerm.AdditionalName)</MudText>
+        }
+    </CellTemplate>
+</Column>
+
+<!-- Similar -->
+<Column T="ConfirmImportingTerm" Title="Existing Terms" Sortable="@false" CellClass="term-column">
+    <CellTemplate>
+        @if (context.Item.IsNotInDb) 
+        {
+            <MudText Typo="Typo.body2" Class="d-inline-block mx-auto">-</MudText>
+        }
+        else {
+            @foreach (var termName in context.Item.TermNames)
+            {
+                <MudButtLink OnClick="@(() => OnNavigateToEdit(termName.Id.ToString()))" StopPropagation="true">
+                    @if (!string.IsNullOrWhiteSpace(termName.AdditionalName))
+                    {
+                        <span>@termName.Name (@termName.AdditionalName)</span>
+                    }
+                    else {
+                        <span>@termName.Name</span>
+                    }
+                </MudButtLink>
+            }
+        }
+    </CellTemplate>
+</Column>
+
+<!-- Category -->
+<Column T="ConfirmImportingTerm" Title="Category" Sortable="false" CellStyle="min-width: 20rem;" >
+    <CellTemplate>
+        <CategorySelector Categories="@_categories"
+                          SelectedCategories="@context.Item.Categories" 
+                          SelectedCategoriesChanged="@(xs => OnSelectedCategoriesChanged(context.Item.ImportingTerm.Id, xs))"/>
+    </CellTemplate>
+</Column>
+
+<!-- Description -->
+<Column T="ConfirmImportingTerm" Title="Description" Sortable="false" CellStyle="@BroadestColumnMinWidth">
+    <CellTemplate>
+        <div>
+            <MudMarkdown Value="@context.Item.ImportingTerm.Description" />
+        </div>
+    </CellTemplate>
+</Column>
+
+<!-- Synonyms -->
+<Column T="ConfirmImportingTerm" Title="Synonyms" Sortable="false">
+    <CellTemplate>
+        @if (context.Item.ImportingTerm.Synonyms.Any()) 
+        {
+            @*<MudText Typo="Typo.body2" Class="d-inline-block pr-1"><b>Synonyms</b>:</MudText>*@
+
+            @foreach (var item in context.Item.ImportingTerm.Synonyms.Take(context.Item.ImportingTerm.Synonyms.Count - 1))
+            {
+                <MudText Typo="Typo.body2" Class="d-inline-block pr-1" Style="white-space: nowrap;">@(item.Name),</MudText>
+            }
+
+            <MudText Typo="Typo.body2" Class="d-inline-block" Style="white-space: nowrap;">@(context.Item.ImportingTerm.Synonyms.Last().Name).</MudText>
+        }
+        @*else {
+            <MudText Typo="Typo.body2" Class="d-inline-block"><i>no synonyms</i>.</MudText>
+        }*@
+    </CellTemplate>
+</Column>
+
+@*<Column T="ConfirmImportingTerm" Sortable="false">
+    <CellTemplate>
+        <MudMenu Icon="@Icons.Material.Filled.Settings" Color="Color.Primary">
+        </MudMenu>
+    </CellTemplate>
+</Column>*@

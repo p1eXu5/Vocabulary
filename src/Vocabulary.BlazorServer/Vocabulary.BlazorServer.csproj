@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>10</LangVersion>
+    
+    <Copyright>(c) 2022 Vladimir Likhatskiy (p1eXu5)</Copyright>
+    <PackageProjectUrl>https://github.com/p1eXu5/Vocabulary</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/p1eXu5/Vocabulary</RepositoryUrl>
+    <PackageTags>vocabulary, uml, specifications, technical documentation</PackageTags>
+    <AssemblyVersion>1.0</AssemblyVersion>
+    <FileVersion>1.0.3.0</FileVersion>
+    <UserSecretsId>bf60667f-d1da-431e-8d06-3975bc91ef40</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+    <AnalysisLevel>latest-minimum</AnalysisLevel>
+    <NoWarn>CA1050;CA1816</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
+    <PackageReference Include="MudBlazor" Version="6.0.10" />
+    <PackageReference Include="MudBlazor.Markdown" Version="0.0.10" />
+    <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\css\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vocabulary.Adapters\Vocabulary.Adapters.csproj" />
+    <ProjectReference Include="..\Vocabulary\Vocabulary.csproj" />
+  </ItemGroup>
+
+</Project>

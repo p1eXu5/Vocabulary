@@ -1,0 +1,75 @@
+﻿@using DbLink = Vocabulary.Adapters.Persistance.Models.Link
+
+<MudTable Items="@Links" Dense="@true" Hover="@true" ReadOnly="@false" CanCancelEdit="@true"
+          IsEditRowSwitchingBlocked="@false"
+          @bind-SelectedItem="_selected" SortLabel="Sort By" 
+          CommitEditTooltip="Commit Edit" 
+          RowEditPreview="BackupItem"
+          RowEditCancel="ResetItemToOriginalValues"
+          >
+    <ColGroup>
+        <col style="min-width:50px; width: 20%;" />
+        <col />
+        <col style="width: 50px;" />
+        <col style="width: 50px;" />
+    </ColGroup>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortBy="new Func<DbLink, object?>(x => x?.ResourceDescription)">Description</MudTableSortLabel></MudTh>
+        <MudTh>Href</MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Description">@context!.ResourceDescription</MudTd>
+        <MudTd DataLabel="Href">@context!.Href</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Filled.DeleteForever" OnClick="@(async () => await RaiseDeleting(context!.Id))"/>
+        </MudTd>
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Nr">
+            <MudTextField @bind-Value="@context!.ResourceDescription" />
+        </MudTd>
+        <MudTd DataLabel="Href">
+            <MudTextField @bind-Value="@context!.Href" Required />
+        </MudTd>
+    </RowEditingTemplate>
+</MudTable>
+
+
+@code {
+    private List<DbLink> _links = new();
+    private DbLink? _selected;
+    private DbLink? _backup;
+
+    [Parameter, EditorRequired]
+    public IEnumerable<DbLink> Links { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<DbLink> LinksChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnDelete { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _links = Links is List<DbLink> linkList ? linkList : Links.ToList();
+    }
+
+    private void BackupItem(object element)
+    {
+        _backup = new()
+        {
+            Id = ((DbLink)element).Id,
+            ResourceDescription = ((DbLink)element).ResourceDescription,
+            Href = ((DbLink)element).Href,
+        };
+    }
+
+    private void ResetItemToOriginalValues(object element)
+    {
+        ((DbLink)element).ResourceDescription = _backup!.ResourceDescription;
+        ((DbLink)element).Href = _backup.Href;
+    }
+
+    private Task RaiseDeleting(int linkId) => OnDelete.InvokeAsync(linkId);
+}

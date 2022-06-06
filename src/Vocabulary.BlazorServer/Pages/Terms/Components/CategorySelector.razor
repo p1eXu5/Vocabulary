@@ -1,0 +1,133 @@
+﻿@using System.Collections.Immutable
+@using Vocabulary.Categories.DataContracts
+@using Vocabulary.Categories.Ports
+@using Vocabulary.Comparers
+@using Vocabulary.Terms.DataContracts
+@using p1eXu5.Result.Extensions
+@inject ICategoryRepository CategoryRepository
+@inject IDialogService DialogService
+@inject AppState AppState
+
+<div class="d-flex flex-nowrap flex-column justify-center align-stretch">
+    <MudSelect T="@Category" Class="mt-3" 
+               Label="Categories" 
+               MultiSelection="true" 
+               SelectAll="true" SelectAllText="Select all categories" 
+               SelectedValues="@_selectedCategories" SelectedValuesChanged="@OnSelectedCategoriesChanged"
+               AnchorOrigin="Origin.BottomCenter" 
+               MaxHeight="600" @bind-Text="@_value" 
+               AutoFocus="@false"
+               Disabled="@_categoryDialogIsShown"
+               >
+        @foreach (var category in Categories.OrderBy(c => c.Name))
+        {
+                <MudSelectItem T="Category" Value="@category">
+                    <div class="d-flex">
+                        @category.Name
+                        <MudSpacer />
+                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Outlined.Edit"  @onclick="@(async _ => await EditCategory(category.Id))" />
+                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Outlined.DeleteForever"  @onclick="@(async _ => await DeleteCategory(category.Id))" />
+                    </div>
+                </MudSelectItem>
+        }
+    </MudSelect>
+
+    <MudPaper Class="d-flex justify-end flex-grow-1 gap-4 mt-3" Elevation="0">
+        <MudButton @onclick="@CreateCategory" Variant="Variant.Outlined" Color="Color.Secondary">Create Category</MudButton>
+    </MudPaper>
+</div>
+
+
+
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<Category> SelectedCategories { private get; set; } = Array.Empty<Category>();
+
+    [Parameter, EditorRequired]
+    public ImmutableArray<Category> Categories { private get; set; } = ImmutableArray<Category>.Empty;
+
+    [Parameter]
+    public EventCallback<IEnumerable<Category>> SelectedCategoriesChanged { get; set; }
+
+    private bool _categoryDialogIsShown;
+    private string _value { get; set; } = "Nothing selected";
+
+    private IEnumerable<Category> _selectedCategories = default!;
+
+    protected override void OnParametersSet()
+    {
+        _selectedCategories = SelectedCategories;
+    }
+
+    private Task OnSelectedCategoriesChanged(IEnumerable<Category> selectedValues)
+    {
+        _selectedCategories = selectedValues;
+        return SelectedCategoriesChanged.InvokeAsync(selectedValues);
+    }
+
+
+
+    private async Task CreateCategory()
+    {
+        var result = await ShowCategoryDialog();
+
+        if ( !result.Cancelled 
+             && Guid.TryParse(result.Data.ToString(), out Guid categoryId) )
+        {
+            (await CategoryRepository.FindAsync(categoryId))
+                .Iter(newCategory => 
+                {
+                    Categories.Add(newCategory);
+                    OnSelectedCategoriesChanged(SelectedCategories.Append(newCategory));
+                });
+
+            await AppState.NotifyCategoryChangedAsync(new AsyncEventArgs() { NewCategoryId = categoryId });
+        }
+    }
+
+
+    private async Task EditCategory(Guid categoryId)
+    {
+        var parameters = new DialogParameters { ["CategoryId"] = categoryId };
+        var result = await ShowCategoryDialog(parameters);
+
+        if (!result.Cancelled) 
+        {
+            (await CategoryRepository.FindAsync(categoryId))
+                .Iter(newCategory => 
+                {
+                    Categories.Remove(newCategory, new IdEqualityComparer<Category>()).Add(newCategory);
+                    OnSelectedCategoriesChanged(SelectedCategories.Where(c => c.Id != categoryId).Append(newCategory));
+                });
+
+            await AppState.NotifyCategoryChangedAsync(new AsyncEventArgs() { });
+        }
+    }
+
+
+    private async Task DeleteCategory(Guid categoryId)
+    {
+        await CategoryRepository.RemoveAsync(categoryId);
+        Categories = Categories.Where(c => c.Id != categoryId).ToImmutableArray();
+        await OnSelectedCategoriesChanged(SelectedCategories.Where(c => c.Id != categoryId));
+        await AppState.NotifyCategoryChangedAsync(new AsyncEventArgs() { RemovedCategoryId = categoryId});
+    }
+
+
+    private Task<DialogResult> ShowCategoryDialog(DialogParameters? parameters = null)
+    {
+        _categoryDialogIsShown = true; // prevent receive focus on multi select drop down (Blazor bug)
+
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true };
+
+        var dialog =
+            parameters is null
+                ? DialogService.Show<CategoryForm>("Create Category", options)
+                : DialogService.Show<CategoryForm>("Edit Category", parameters, options);
+
+        _categoryDialogIsShown = false;
+
+        return dialog.Result;
+    }
+}

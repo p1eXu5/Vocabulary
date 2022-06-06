@@ -1,0 +1,31 @@
+﻿@namespace MudBlazor
+@inherits MudLink
+
+<a @attributes="Attributes" class="@Classname" style="cursor: pointer; @Style" @onclick="@RaiseOnClick" @onclick:preventDefault="@PreventDefault" @onclick:stopPropagation="@StopPropagation">
+    @ChildContent
+</a>
+
+@code {
+    private Dictionary<string, object> Attributes
+    {
+        get => Disabled ? UserAttributes : new Dictionary<string, object>(UserAttributes)
+        {
+            { "href", Href },
+            { "target", Target }
+        };
+    }
+
+    [Parameter]
+    [Category(CategoryTypes.Link.Behavior)]
+    public bool PreventDefault { get; set; }
+
+    [Parameter]
+    [Category(CategoryTypes.Link.Behavior)]
+    public bool StopPropagation { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private Task RaiseOnClick()
+        => OnClick.InvokeAsync();
+}

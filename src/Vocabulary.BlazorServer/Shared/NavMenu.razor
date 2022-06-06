@@ -1,0 +1,153 @@
+﻿@using Vocabulary.Adapters.Persistance.Models
+@inject IDbContextFactory<VocabularyDbContext> DbContextFactory
+@inject NavigationManager NavigationManager
+@inject AppState AppState
+@implements IDisposable
+
+<MudNavMenu Class="pb-8">
+    <MudToggleIconButton @bind-Toggled="@_grouping"
+                         Icon="@Icons.Filled.FormatAlignJustify" Color="@Color.Warning" Title="Sort by name"
+                         ToggledIcon="@Icons.Filled.FormatAlignRight" ToggledColor="@Color.Success" ToggledTitle="Grouping"
+                         />
+    <span>@(_grouping ? "Term groups" : "Term list")</span>
+    <MudDivider />
+
+    @if (_categories.Any()) {
+        @if (_grouping) 
+        {
+            <MudNavLink Href="/terms" Match="NavLinkMatch.All">All Categories</MudNavLink>
+
+            @if (_uncategorizedTerms.Any()) {
+                <MudNavGroup Title="Uncategorized" @bind-Expanded="@_isExpanded[Guid.Empty]">
+                    @{
+                        var categoryHref = 
+                            NavigationManager.GetUriWithQueryParameters("/terms", new Dictionary<string, object?> { ["categoryName"] = "Uncategorized" });
+
+                        var newCategoryTermHref = 
+                            NavigationManager.GetUriWithQueryParameters(
+                                "/term/create", 
+                                new Dictionary<string, object?> {
+                                    ["returnUrl"] = 
+                                        NavigationManager.Uri.StartsWith("/term") ? "/terms" : NavigationManager.Uri,
+                                });
+                    }
+
+                    <MudNavLink Href="@categoryHref" Match="NavLinkMatch.All">All</MudNavLink>
+                    <MudNavLink Href="@newCategoryTermHref" Match="NavLinkMatch.Prefix">New...</MudNavLink>
+                    @foreach (var term in _uncategorizedTerms)
+                    {
+                        var termHref = 
+                            NavigationManager.GetUriWithQueryParameters("/terms", 
+                                new Dictionary<string, object?> { 
+                                    ["search"] = term.Name
+                                });;
+
+                        <TermNavLink Href="@termHref" Term="@term"/>
+                    }
+                </MudNavGroup>
+            }
+
+            @foreach (var cat in _categories)
+            {
+                // href - "/?categoryName={cat.Name}"
+                var categoryHref = 
+                    NavigationManager.GetUriWithQueryParameters("/terms", new Dictionary<string, object?> { ["categoryName"] = cat.Name });
+
+                // href - "/?categoryName={cat.Name}"
+                var newCategoryTermHref = 
+                    NavigationManager.GetUriWithQueryParameters(
+                        "/term/create", 
+                        new Dictionary<string, object?> { 
+                            ["categoryId"] = cat.Id,
+                            ["returnUrl"] = 
+                                NavigationManager.Uri.StartsWith("/term") ? "/terms" : NavigationManager.Uri,
+                        });
+
+
+                <MudNavGroup Title="@cat.Name" @bind-Expanded="@_isExpanded[cat.Id]">
+                    <MudNavLink Href="@categoryHref" Match="NavLinkMatch.All">All</MudNavLink>
+                    <MudNavLink Href="@newCategoryTermHref" Match="NavLinkMatch.Prefix">New...</MudNavLink>
+                    @foreach (var term in cat.Terms)
+                    {
+                        var termHref = 
+                            NavigationManager.GetUriWithQueryParameters("/terms", 
+                                new Dictionary<string, object?> { 
+                                    ["categoryName"] = cat.Name,
+                                    ["search"] = term.Name
+                                });;
+
+                        <TermNavLink Href="@termHref" Term="@term"/>
+                    }
+                </MudNavGroup>
+            }
+        }
+        else {
+
+            var newCategoryTermHref = 
+                NavigationManager.GetUriWithQueryParameters(
+                    "/term/create", 
+                    new Dictionary<string, object?> {
+                        ["returnUrl"] = 
+                            NavigationManager.Uri.StartsWith("/term") ? "/terms" : NavigationManager.Uri,
+                    });
+
+            <MudNavLink Href="@newCategoryTermHref" Match="NavLinkMatch.Prefix">New...</MudNavLink>
+
+            @foreach (var term in _categories.SelectMany(c => c.Terms).DistinctBy(t => t.Id).Concat(_uncategorizedTerms).OrderBy(t => t.Name)) {
+                var termHref = 
+                    NavigationManager.GetUriWithQueryParameters("/terms", 
+                        new Dictionary<string, object?> { 
+                            ["search"] = term.Name,
+                        });;
+                <TermNavLink Href="@termHref" Term="@term"/>
+            }
+        }
+    }
+
+</MudNavMenu>
+
+@code {
+    private Dictionary<Guid, bool> _isExpanded = new (10);
+
+    private List<Category> _categories = new();
+    private List<Term> _uncategorizedTerms = new();
+
+    private bool _grouping = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategoriesAsync();
+        _isExpanded[Guid.Empty] = false;
+        foreach (var category in _categories)
+        {
+            _isExpanded[category.Id] = false;
+        }
+
+        AppState.OnCategoriesChangedAsync += UpdateAsync;
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        using var dbContext = await DbContextFactory.CreateDbContextAsync();
+        _categories = await dbContext.Categories.Include(c => c.Terms.OrderBy(t => t.Name)).OrderBy(c => c.Name).ToListAsync();
+        _uncategorizedTerms = await dbContext.Terms.Where(t => !t.Categories.Any()).ToListAsync();
+    }
+
+    public void Dispose()
+    {
+        AppState.OnCategoriesChangedAsync -= UpdateAsync;
+    }
+
+    private async Task UpdateAsync(AsyncEventArgs args)
+    {
+        await LoadCategoriesAsync();
+        if (args.NewCategoryId.HasValue) {
+            _isExpanded[args.NewCategoryId.Value] = false;
+        }
+        else if (args.RemovedCategoryId.HasValue) {
+            _isExpanded.Remove(args.RemovedCategoryId.Value);
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+}
