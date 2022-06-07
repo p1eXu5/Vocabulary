@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Quartz.Util;
 using Vocabulary.Adapters.Persistance;
 using Vocabulary.Adapters.Persistance.Models;
 using Vocabulary.Descriptions;
@@ -33,6 +34,7 @@ public partial class TermDataGrid
 
     private List<Term> _terms = new List<Term>();
     private string? _searchString;
+    private string? _categoryName;
     private bool _isLoading = true;
 
     private bool IsFilteringByCategory => !string.IsNullOrWhiteSpace(CategoryName);
@@ -79,14 +81,22 @@ public partial class TermDataGrid
 
     protected override async Task OnParametersSetAsync()
     {
+        _categoryName = CategoryName;
+        _searchString = Search;
+        await LoadDataAsync();
+    }
+
+
+    private async Task LoadDataAsync()
+    {
         _isLoading = true;
         using var dbContext = await DbContextFactory.CreateDbContextAsync();
         var query = dbContext.Terms.Include(t => t.Synonyms).Include(t => t.Links).Include(t => t.Categories).OrderBy(t => t.Sequence);
 
-        if (!string.IsNullOrWhiteSpace(CategoryName))
+        if (!string.IsNullOrWhiteSpace(_categoryName))
         {
             _terms =
-                CategoryName.Equals("Uncategorized", StringComparison.Ordinal)
+                _categoryName.Equals("Uncategorized", StringComparison.Ordinal)
                     ? await query.Where(t => !t.Categories.Any()).ToListAsync()
                     : await query.Where(t => t.Categories.Any(c => c.Name == CategoryName)).ToListAsync();
         }
@@ -99,6 +109,31 @@ public partial class TermDataGrid
         _isLoading = false;
     }
 
+    private void ReloadTermsForSearch(string searchString)
+    {
+        if (searchString.Equals(_searchString))
+        {
+            return;
+        }
+
+        _searchString = searchString;
+
+
+        if (_categoryName.IsNullOrWhiteSpace())
+        {
+            return;
+        }
+
+        if (!AppState.SearchInCurrentCategory)
+        {
+            _categoryName = null;
+            NavigationManager.NavigateTo(NavigationManager.GetUriWithQueryParameters("/terms", new Dictionary<string, object?>()
+            {
+                ["Search"] = _searchString,
+                ["CategoryName"] = _categoryName
+            }));
+        }
+    }
 
     // events
     private void NavigateToCreate()

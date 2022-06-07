@@ -31,8 +31,18 @@
                                >
                         Create new term
                     </MudButton>
+
+                    <MudSpacer />
                     
                     <MudButtonGroup OverrideStyles="@false" Variant="Variant.Outlined">
+                        <MudToggleTextButton Title="Search in current category"
+                                             Text="Cur"
+                                             Color="@Color.Default"
+                                             ToggledColor="@Color.Primary"
+                                             Variant="Variant.Filled"
+                                             DisableElevation="@true"
+                                             @bind-Toggled="@AppState.SearchInCurrentCategory"
+                                             />
                         <MudToggleTextButton Title="Search in terms"
                                              Text="Trm"
                                              Color="@Color.Default"
@@ -59,12 +69,13 @@
                                              />
                     </MudButtonGroup>
                     
-                    <MudSpacer />
                     
-                    <MudTextField @bind-Value="_searchString" 
+                    <MudTextField T="string" 
+                                  Value="@_searchString"
+                                  ValueChanged="@ReloadTermsForSearch"
                                   Placeholder="Search" 
                                   Adornment="Adornment.Start" 
-                                  Immediate="true"
+                                  DebounceInterval="500"
                                   AdornmentIcon="@Icons.Material.Filled.Search" 
                                   IconSize="Size.Medium" 
                                   Class="mt-0 term-search-input" />
