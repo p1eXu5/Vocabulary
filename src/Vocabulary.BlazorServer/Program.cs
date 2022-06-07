@@ -32,6 +32,8 @@ builder.Services.AddAdapters(builder.Configuration);
 
 builder.Services.AddMemoryCache();
 
+builder.Services.AddLogging(logginBuilder => { logginBuilder.AddSeq(builder.Configuration.GetSection("Seq")); });
+
 /*
 builder.Services.AddQuartz(q =>
 {
