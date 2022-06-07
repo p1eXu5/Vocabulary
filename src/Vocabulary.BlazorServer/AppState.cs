@@ -12,6 +12,7 @@ public delegate Task AsyncEventHandler(AsyncEventArgs args);
 
 public class AppState
 {
+    public bool SearchInCurrentCategory { get; set; } = false;
     public bool SearchInTerms { get; set; } = true;
     public bool SearchInCategories { get; set; } = true;
     public bool SearchInSynonyms { get; set; } = true;
