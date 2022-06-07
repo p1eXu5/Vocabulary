@@ -453,7 +453,6 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 /src/Vocabulary.BlazorServer/wwwroot/temp
-/src/Vocabulary.BlazorServer/appsettings.json
 /src/Vocabulary.BlazorServer/appsettings.Production.json
 /src/Vocabulary.BlazorServer/appsettings.Development.json
 /.env

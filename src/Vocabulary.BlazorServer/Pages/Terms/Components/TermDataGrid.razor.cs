@@ -135,7 +135,6 @@ public partial class TermDataGrid
             ));
     }
 
-
     internal async Task CheckDecriptionTerms(Guid termId)
     {
         var res = await Mediator.Send(new CheckTermsCommand(termId));
@@ -149,7 +148,6 @@ public partial class TermDataGrid
             }
         }
     }
-
 
     internal async Task RemoveTerm(Guid termId)
     {
