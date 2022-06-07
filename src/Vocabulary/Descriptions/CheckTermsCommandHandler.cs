@@ -43,6 +43,7 @@ namespace Vocabulary.Descriptions
                             (
                                 ind + t.Length == descriptionTerms.Desription.Length 
                                 || Char.IsWhiteSpace(descriptionTerms.Desription[ind + t.Length])
+                                || Char.IsPunctuation(descriptionTerms.Desription[ind + t.Length])
                             ) 
                         ) {
                             var link = $"[{t}](/terms?search={Uri.EscapeDataString(t)})";
@@ -54,6 +55,24 @@ namespace Vocabulary.Descriptions
                     .Where(r => r.HasValue)
                     .Cast<Replacement>()
                     .OrderBy(r => r.OriginInd)
+                    .ThenByDescending(r => r.Difference)
+                    .DistinctBy(r => r.OriginInd)
+                    .Aggregate(new List<Replacement>(), (list, el) =>
+                    {
+                        if (!list.Any())
+                        {
+                            list.Add(el);
+                            return list;
+                        }
+
+                        var lastReplacement = list.Last();
+                        if ((lastReplacement.OriginInd + lastReplacement.Term.Length) < el.OriginInd)
+                        {
+                            list.Add(el);
+                        }
+
+                        return list;
+                    })
                     .ToImmutableArray();
 
             if (!positions.Any()) {
@@ -69,16 +88,19 @@ namespace Vocabulary.Descriptions
 
             foreach (var pos in positions) 
             {
-                originLength = pos.OriginInd - startOrigin;
-                resSpan = result.Slice(startRes, originLength);
-                description.Slice(startOrigin, originLength).CopyTo(resSpan);
+                if (startOrigin < pos.OriginInd)
+                {
+                    originLength = pos.OriginInd - startOrigin;
+                    resSpan = result.Slice(startRes, originLength);
+                    description.Slice(startOrigin, originLength).CopyTo(resSpan);
 
-                startRes += originLength;
-                resSpan = result.Slice(startRes, pos.Link.Length);
-                pos.Link.AsMemory().CopyTo(resSpan);
-                startRes += pos.Link.Length;
+                    startRes += originLength;
+                    resSpan = result.Slice(startRes, pos.Link.Length);
+                    pos.Link.AsMemory().CopyTo(resSpan);
+                    startRes += pos.Link.Length;
 
-                startOrigin = pos.OriginInd + pos.Term.Length;
+                    startOrigin = pos.OriginInd + pos.Term.Length;
+                }
             }
 
             originLength = descriptionTerms.Desription.Length - startOrigin;
@@ -93,6 +115,12 @@ namespace Vocabulary.Descriptions
             string Term,
             string Link,
             int Difference
-        );
+        )
+        {
+            /// <summary>
+            /// Difference between generating link length and found term length.
+            /// </summary>
+            public int Difference { get; init; } = Difference;
+        };
     }
 }
