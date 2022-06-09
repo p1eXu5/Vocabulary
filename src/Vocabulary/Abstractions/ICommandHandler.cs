@@ -14,4 +14,3 @@ public interface IResultCommandHandler<TCommand, TResponse> : IRequestHandler<TC
 
 public interface IResultCommandHandler<TCommand> : IRequestHandler<TCommand, Result> where TCommand : IResultCommand
 { }
-
