@@ -18,6 +18,17 @@
       "applicationUrl": "https://localhost:7124;http://localhost:5181",
       "dotnetRunMessages": true
     },
+    "Vocabulary.BlazorServer - prod-db": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "https://localhost:7124/",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__VocabularyDb": "Data Source = d:\\db\\Vocabulary\\Vocabulary.db"
+      },
+      "applicationUrl": "https://localhost:7124;http://localhost:5181",
+      "dotnetRunMessages": true
+    },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,

@@ -3,7 +3,6 @@ using p1eXu5.Result;
 
 namespace Techno.Mir.Upay.Abstractions;
 
-
 public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand> where TCommand : ICommand
 { }
 
@@ -15,4 +14,3 @@ public interface IResultCommandHandler<TCommand, TResponse> : IRequestHandler<TC
 
 public interface IResultCommandHandler<TCommand> : IRequestHandler<TCommand, Result> where TCommand : IResultCommand
 { }
-

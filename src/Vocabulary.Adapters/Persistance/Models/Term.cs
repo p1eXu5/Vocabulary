@@ -1,12 +1,11 @@
-﻿using AutoMapper.Configuration.Annotations;
-using p1eXu5.AutoProfile.Attributes;
+﻿using p1eXu5.AutoProfile.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vocabulary.Adapters.Persistance.Models;
 
-[MapTo(typeof(Vocabulary.Terms.DataContracts.ExportingTerm), MemberList = AutoMapper.MemberList.Destination)]
-[MapTo(typeof(Vocabulary.Terms.DataContracts.TermNames), MemberList = AutoMapper.MemberList.Destination)]
-[MapFrom(typeof(Vocabulary.Terms.DataContracts.ImportingTerm), MemberList = AutoMapper.MemberList.Source)]
+[MapTo(typeof(Terms.DataContracts.ExportingTerm), MemberList = AutoMapper.MemberList.Destination)]
+[MapTo(typeof(Terms.DataContracts.TermNames), MemberList = AutoMapper.MemberList.Destination)]
+[MapFrom(typeof(Terms.DataContracts.ImportingTerm), MemberList = AutoMapper.MemberList.Source)]
 public class Term
 {
     public Term()
@@ -32,6 +31,7 @@ public class Term
 
     public Guid Id { get; init; } = Guid.NewGuid();
 
+    [Required]
     public int Sequence { get; set; }
 
     [Required, MaxLength(255)]
@@ -44,7 +44,10 @@ public class Term
 
     public string? ValidationRules { get; set; }
 
-    
+    public bool IsDeleted { get; set; }
+
+    public long Timestamp { get; internal set; }
+
     public ICollection<Synonym> Synonyms { get; } = new HashSet<Synonym>();
     public ICollection<Link> Links { get; } = new HashSet<Link>();
     public ICollection<Category> Categories { get; set; } = new HashSet<Category>();

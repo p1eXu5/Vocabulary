@@ -13,7 +13,12 @@ namespace Vocabulary.Adapters.Persistance.EntityTypeConfigurations
 
             builder.Property(t => t.Sequence)
                 .HasColumnType("INT")
-                .ValueGeneratedOnAdd();
+                .IsRequired()
+                .ValueGeneratedOnAdd(); // does not work on sqlite
+
+            builder.Property(t => t.Timestamp)
+                .IsRequired()
+                .HasColumnType("INT");
 
             builder.HasAlternateKey(t => t.Sequence);
 
