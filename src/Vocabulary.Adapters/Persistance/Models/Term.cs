@@ -32,6 +32,7 @@ public class Term
 
     public Guid Id { get; init; } = Guid.NewGuid();
 
+    [Required]
     public int Sequence { get; set; }
 
     [Required, MaxLength(255)]
@@ -44,7 +45,10 @@ public class Term
 
     public string? ValidationRules { get; set; }
 
-    
+    public bool IsDeleted { get; set; }
+
+    public ulong Timestamp { get; internal set; }
+
     public ICollection<Synonym> Synonyms { get; } = new HashSet<Synonym>();
     public ICollection<Link> Links { get; } = new HashSet<Link>();
     public ICollection<Category> Categories { get; set; } = new HashSet<Category>();
