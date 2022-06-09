@@ -47,7 +47,7 @@ public class Term
 
     public bool IsDeleted { get; set; }
 
-    public ulong Timestamp { get; internal set; }
+    public long Timestamp { get; internal set; }
 
     public ICollection<Synonym> Synonyms { get; } = new HashSet<Synonym>();
     public ICollection<Link> Links { get; } = new HashSet<Link>();
