@@ -11,4 +11,5 @@ public interface ITermRepository
     Task<Result<IReadOnlyCollection<TermNames>>> GetTermNamesAsync(CancellationToken cancellationToken);
 
     Task<Result> ImportAsync(IEnumerable<IConfirmedTerm> importingTerms);
+    Task<Result> DeleteAsync(Guid termId);
 }
