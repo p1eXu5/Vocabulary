@@ -11,6 +11,9 @@ using Vocabulary.Adapters.Persistance.Models;
 
 namespace Vocabulary.Adapters.Persistance.Repositories;
 
+using DbTerm = Vocabulary.Adapters.Persistance.Models.Term;
+
+
 public class TermRepository : ITermRepository
 {
     private readonly IDbContextFactory<VocabularyDbContext> _dbContextFactory;
@@ -58,6 +61,7 @@ public class TermRepository : ITermRepository
         return result.ToSuccessResult();
     }
 
+
     public async Task<Result> ImportAsync(IEnumerable<IConfirmedTerm> importingTerms)
     {
         try
@@ -84,5 +88,34 @@ public class TermRepository : ITermRepository
         {
             return Result.Failure("Error on importing terms into database.", ex);
         }
+    }
+
+
+    public async Task<Result> DeleteAsync(Guid termId)
+    {
+        using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        DbTerm? dbTerm = await dbContext.Terms.SingleOrDefaultAsync(t => t.Id == termId);
+
+        if (dbTerm is not null)
+        {
+            if (dbTerm.IsDeleted)
+            {
+                return Result.Failure("Term had already been deleted.");
+            }
+
+            dbTerm.IsDeleted = true;
+
+            try
+            {
+                await dbContext.SaveChangesAsync();
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure("Error on updating term.", ex);
+            }
+        }
+
+        return Result.Failure("Term has not been found.");
     }
 }
