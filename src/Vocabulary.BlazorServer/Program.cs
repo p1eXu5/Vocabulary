@@ -1,3 +1,4 @@
+using Fluxor;
 using MediatR;
 using MudBlazor;
 using MudBlazor.Services;
@@ -33,6 +34,14 @@ builder.Services.AddAdapters(builder.Configuration);
 builder.Services.AddMemoryCache();
 
 builder.Services.AddLogging(logginBuilder => { logginBuilder.AddSeq(builder.Configuration.GetSection("Seq")); });
+
+var currentAssembly = typeof(Vocabulary.WebClient.Store.VocabularyState).Assembly;
+builder.Services.AddFluxor(options => {
+    options.ScanAssemblies(currentAssembly);
+#if DEBUG
+    options.UseReduxDevTools();
+#endif
+});
 
 /*
 builder.Services.AddQuartz(q =>

@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="Fluxor.Blazor.Web.ReduxDevTools" Version="5.4.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
       <PrivateAssets>all</PrivateAssets>
@@ -41,6 +42,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Vocabulary.Adapters\Vocabulary.Adapters.csproj" />
+    <ProjectReference Include="..\Vocabulary.DataContracts\Vocabulary.DataContracts.fsproj" />
+    <ProjectReference Include="..\Vocabulary.WebClient.Store\Vocabulary.WebClient.Store.fsproj" />
     <ProjectReference Include="..\Vocabulary\Vocabulary.csproj" />
   </ItemGroup>
 

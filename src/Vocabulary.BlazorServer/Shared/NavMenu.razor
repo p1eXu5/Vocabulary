@@ -1,7 +1,7 @@
-﻿@using Vocabulary.Adapters.Persistance.Models
-@inject IDbContextFactory<VocabularyDbContext> DbContextFactory
-@inject NavigationManager NavigationManager
-@inject AppState AppState
+﻿@inherits FluxorComponent
+
+@using Vocabulary.Adapters.Persistance.Models
+
 @implements IDisposable
 
 <MudNavMenu Class="pb-8">
@@ -12,13 +12,14 @@
     <span>@(_grouping ? "Term groups" : "Term list")</span>
     <MudDivider />
 
-    @if (_categories.Any()) {
+    @if (Categories.Any()) {
         @if (_grouping) 
         {
             <MudNavLink Href="/terms" Match="NavLinkMatch.All">All Categories</MudNavLink>
 
-            @if (_uncategorizedTerms.Any()) {
-                <MudNavGroup Title="Uncategorized" @bind-Expanded="@_isExpanded[Guid.Empty]">
+            @if (UncategorizedTerms.Any()) 
+            {
+                <MudNavGroup Title="Uncategorized" Expanded="@IsExpanded[Guid.Empty]" ExpandedChanged="@(v => OnExpandedChanged(Guid.Empty, v))">
                     @{
                         var categoryHref = 
                             NavigationManager.GetUriWithQueryParameters("/terms", new Dictionary<string, object?> { ["categoryName"] = "Uncategorized" });
@@ -34,7 +35,7 @@
 
                     <MudNavLink Href="@categoryHref" Match="NavLinkMatch.All">All</MudNavLink>
                     <MudNavLink Href="@newCategoryTermHref" Match="NavLinkMatch.Prefix">New...</MudNavLink>
-                    @foreach (var term in _uncategorizedTerms)
+                    @foreach (var term in UncategorizedTerms)
                     {
                         var termHref = 
                             NavigationManager.GetUriWithQueryParameters("/terms", 
@@ -47,7 +48,7 @@
                 </MudNavGroup>
             }
 
-            @foreach (var cat in _categories)
+            @foreach (var cat in Categories)
             {
                 // href - "/?categoryName={cat.Name}"
                 var categoryHref = 
@@ -64,10 +65,10 @@
                         });
 
 
-                <MudNavGroup Title="@cat.Name" @bind-Expanded="@_isExpanded[cat.Id]">
+                <MudNavGroup Title="@cat.Name" Expanded="@IsExpanded[cat.Id]" ExpandedChanged="@(v => OnExpandedChanged(cat.Id, v))">
                     <MudNavLink Href="@categoryHref" Match="NavLinkMatch.All">All</MudNavLink>
                     <MudNavLink Href="@newCategoryTermHref" Match="NavLinkMatch.Prefix">New...</MudNavLink>
-                    @foreach (var term in cat.Terms)
+                    @foreach (var term in cat.TermNames)
                     {
                         var termHref = 
                             NavigationManager.GetUriWithQueryParameters("/terms", 
@@ -82,7 +83,6 @@
             }
         }
         else {
-
             var newCategoryTermHref = 
                 NavigationManager.GetUriWithQueryParameters(
                     "/term/create", 
@@ -93,7 +93,7 @@
 
             <MudNavLink Href="@newCategoryTermHref" Match="NavLinkMatch.Prefix">New...</MudNavLink>
 
-            @foreach (var term in _categories.SelectMany(c => c.Terms).DistinctBy(t => t.Id).Concat(_uncategorizedTerms).OrderBy(t => t.Name)) {
+            @foreach (var term in Categories.SelectMany(c => c.TermNames).DistinctBy(t => t.Id).Concat(UncategorizedTerms).OrderBy(t => t.Name)) {
                 var termHref = 
                     NavigationManager.GetUriWithQueryParameters("/terms", 
                         new Dictionary<string, object?> { 
@@ -105,49 +105,3 @@
     }
 
 </MudNavMenu>
-
-@code {
-    private Dictionary<Guid, bool> _isExpanded = new (10);
-
-    private List<Category> _categories = new();
-    private List<Term> _uncategorizedTerms = new();
-
-    private bool _grouping = true;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadCategoriesAsync();
-        _isExpanded[Guid.Empty] = false;
-        foreach (var category in _categories)
-        {
-            _isExpanded[category.Id] = false;
-        }
-
-        AppState.OnCategoriesChangedAsync += UpdateAsync;
-    }
-
-    private async Task LoadCategoriesAsync()
-    {
-        using var dbContext = await DbContextFactory.CreateDbContextAsync();
-        _categories = await dbContext.Categories.Include(c => c.Terms.OrderBy(t => t.Name)).OrderBy(c => c.Name).ToListAsync();
-        _uncategorizedTerms = await dbContext.Terms.Where(t => !t.Categories.Any()).ToListAsync();
-    }
-
-    public void Dispose()
-    {
-        AppState.OnCategoriesChangedAsync -= UpdateAsync;
-    }
-
-    private async Task UpdateAsync(AsyncEventArgs args)
-    {
-        await LoadCategoriesAsync();
-        if (args.NewCategoryId.HasValue) {
-            _isExpanded[args.NewCategoryId.Value] = false;
-        }
-        else if (args.RemovedCategoryId.HasValue) {
-            _isExpanded.Remove(args.RemovedCategoryId.Value);
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
-}

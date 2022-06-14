@@ -1,10 +1,11 @@
 ﻿@using Vocabulary.Adapters.Persistance.Models
+@using Vocabulary.DataContracts.Types
 
 <MudNavLink Href="@Href" Match="NavLinkMatch.Prefix">
     <MudText Typo="Typo.subtitle1" >@Term.Name</MudText>
-    @if (!string.IsNullOrWhiteSpace(Term.AdditionalName)) {
+    @if (Term.HasAdditionalName) {
         <div class="ml-3">
-            <MudText Typo="Typo.caption">@Term.AdditionalName</MudText>
+            <MudText Typo="Typo.caption">@Term.AdditionalName.Value</MudText>
         </div>
     }
 </MudNavLink>
@@ -15,27 +16,5 @@
     public string Href { private get; set; } = default!;
 
     [Parameter, EditorRequired]
-    public Term Term { private get; set; } = default!;
-
-    private string? LinkContent { get; set; }
-
-    protected override void OnParametersSet()
-    {
-        //base.OnParametersSet();
-
-        //if (!string.IsNullOrWhiteSpace(Term.AdditionalName)) 
-        //{
-        //    var linkContent = $"{Term.Name} ({Term.AdditionalName})";
-
-        //    LinkContent =
-        //        linkContent.Length > 25
-        //            ? linkContent.Substring(0, 20) + "...)"
-        //            : linkContent;
-
-
-        //}
-        //else {
-        //    LinkContent = Term.Name;
-        //}
-    }
+    public TermName Term { private get; set; } = default!;
 }

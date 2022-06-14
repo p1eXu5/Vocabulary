@@ -25,4 +25,7 @@
     <ProjectReference Include="..\Vocabulary\Vocabulary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Vocabulary.Adapters.Tests"/>
+  </ItemGroup>
 </Project>

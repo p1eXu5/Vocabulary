@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vocabulary.Adapters.Persistance.Models;
 
-[MapTo(typeof(Vocabulary.Categories.DataContracts.Category), MemberList = AutoMapper.MemberList.Destination, ReverseMap = true)]
+[MapTo(typeof(Categories.DataContracts.Category), MemberList = AutoMapper.MemberList.Destination, ReverseMap = true)]
+[MapTo(typeof(DataContracts.Types.NavCategory), MemberList = AutoMapper.MemberList.Destination)]
 public class Category
 {
     public Category()
@@ -19,7 +20,8 @@ public class Category
     [Required, MaxLength(255)]
     public string Name { get; set; } = "";
 
-    public ICollection<Term> Terms { get; set; } = new HashSet<Term>();
+    [Opposite(nameof(DataContracts.Types.TermName))]
+    public HashSet<Term> Terms { get; set; } = new HashSet<Term>();
 
     public override string ToString()
     {

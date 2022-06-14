@@ -5,6 +5,7 @@ using p1eXu5.Result.Extensions;
 using System.Collections.Immutable;
 using Vocabulary.Categories.DataContracts;
 using Vocabulary.Categories.Ports;
+using Vocabulary.DataContracts.Types;
 
 namespace Vocabulary.Adapters.Persistance.Repositories;
 
@@ -16,20 +17,36 @@ public class CategoryRepository : ICategoryRepository
     public CategoryRepository(IDbContextFactory<VocabularyDbContext> dbContextFactory, IMapper mapper)
     {
         _dbContextFactory = dbContextFactory;
-        this._mapper = mapper;
+        _mapper = mapper;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TCategory"></typeparam>
+    /// <returns></returns>
+    public async Task<IEnumerable<NavCategory>> GetNavCategoriesAsync<TCategory>()
+    {
+        using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        var dbCategories = await dbContext.Categories.Include(c => c.Terms).ToArrayAsync();
+
+        return dbCategories.Select(c => 
+            NavCategoryModule.create(
+                c.Id,
+                c.Name,
+                c.Terms.Select(
+                    t => TermNameModule.create(t.Id, t.Name, t.AdditionalName)))
+            );
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="categoryId"></param>
+    /// <returns></returns>
     public Task<Result<Category>> FindAsync(Guid categoryId)
     {
         return InternalFindAsync(categoryId).TaskMap(r => r.Map(_mapper.Map<Category>));
-    }
-
-    public async Task<ImmutableArray<Category>> GetCategoriesAsync()
-    {
-        using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-        var dbCategories = await dbContext.Categories.ToListAsync();
-
-        return dbCategories.Select(_mapper.Map<Category>).ToImmutableArray();
     }
 
     public async Task<Result> RemoveAsync(Guid categoryId)
@@ -64,4 +81,6 @@ public class CategoryRepository : ICategoryRepository
 
         return Result<Models.Category>.Failure($"Could not find Category by id {categoryId}");
     }
+
+
 }

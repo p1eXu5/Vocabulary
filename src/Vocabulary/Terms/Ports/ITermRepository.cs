@@ -1,4 +1,5 @@
 ﻿using p1eXu5.Result;
+using Vocabulary.DataContracts.Types;
 using Vocabulary.Terms.Abstractions;
 using Vocabulary.Terms.DataContracts;
 
@@ -12,4 +13,5 @@ public interface ITermRepository
 
     Task<Result> ImportAsync(IEnumerable<IConfirmedTerm> importingTerms);
     Task<Result> DeleteAsync(Guid termId);
+    Task<IEnumerable<TermName>> GetUncategorizedTermsAsync();
 }

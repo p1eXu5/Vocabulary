@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using p1eXu5.Result.Extensions;
 using Vocabulary.Terms.Abstractions;
 using Vocabulary.Adapters.Persistance.Models;
+using Vocabulary.DataContracts.Types;
 
 namespace Vocabulary.Adapters.Persistance.Repositories;
 
@@ -28,6 +29,14 @@ public class TermRepository : ITermRepository
         _logger = logger;
     }
 
+
+    public async Task<IEnumerable<TermName>> GetUncategorizedTermsAsync()
+    {
+        using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        var dbCategories = await dbContext.Terms.ToArrayAsync();
+
+        return dbCategories.Select(t => new TermName(t.Id, t.Name, t.AdditionalName));
+    }
 
     public async Task<Result<IReadOnlyCollection<TermNames>>> GetTermNamesAsync(CancellationToken cancellationToken)
     {

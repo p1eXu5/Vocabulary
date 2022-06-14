@@ -5,6 +5,7 @@ namespace Vocabulary.Adapters.Persistance.Models;
 
 [MapTo(typeof(Terms.DataContracts.ExportingTerm), MemberList = AutoMapper.MemberList.Destination)]
 [MapTo(typeof(Terms.DataContracts.TermNames), MemberList = AutoMapper.MemberList.Destination)]
+[MapTo(typeof(Vocabulary.DataContracts.Types.TermName), MemberList = AutoMapper.MemberList.Destination)]
 [MapFrom(typeof(Terms.DataContracts.ImportingTerm), MemberList = AutoMapper.MemberList.Source)]
 public class Term
 {

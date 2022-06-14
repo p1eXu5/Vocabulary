@@ -35,7 +35,7 @@ public abstract class ConfirmTermListActions : ComponentBase
 
     private async Task LoadDataAsync()
     {
-        _categories = await CategoryRepository.GetCategoriesAsync();
+        // _categories = await CategoryRepository.GetCategoriesAsync<>();
     }
 
 
