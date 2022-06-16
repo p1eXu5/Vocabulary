@@ -9,39 +9,48 @@ open System
 
 type UncategorizedTerms = TermName list
 
+
+type TermFilter =
+    | TermId of Guid
+    | Category of Guid
+
+
 [<FeatureState(CreateInitialStateMethodName="Init")>]
 type VocabularyState =
     {
         NavCategories: Deferred<NavCategory list>
         UncategorizedTerms: Deferred<UncategorizedTerms>
-        IsExpandedMap: Map<Guid, bool>
+        Terms: Deferred<FullTerm list>
+        CategoryExpanderMap: Map<Guid, bool>
     }
     with
         static member Init() =
             {
-                NavCategories = Deferred.HasNotStartedYet
-                UncategorizedTerms = Deferred.HasNotStartedYet
-                IsExpandedMap = Map.empty
+                NavCategories = Deferred.HasNotBeenRequestedYet
+                UncategorizedTerms = Deferred.HasNotBeenRequestedYet
+                Terms = Deferred.HasNotBeenRequestedYet
+                CategoryExpanderMap = Map.empty
             }
+
+
 
 
 module VocabularyState =
 
     type Msg =
         | LoadNavCategoriesOperation of Operation<unit, (NavCategory list * UncategorizedTerms)>
-        | SetExpanded of id: Guid * value: bool
+        | ToggleCategoryExpander of id: Guid * value: bool
+        | LoadTermsOperation of Operation<unit, FullTerm list>
         with
-            static member StartLoadNavCategoriesOperationMsg () =
-                LoadNavCategoriesOperation (Start ())
-
-            static member SetExpandedMsg(id, value) =
-                SetExpanded (id, value)
+            static member LoadNavCategoriesMsg () = LoadNavCategoriesOperation (Start ())
+            static member SetExpandedMsg(id, value) = ToggleCategoryExpander (id, value)
+            static member LoadTermsMsg () = LoadTermsOperation (Start ())
 
 
     [<ReducerMethod>]
     let update model msg =
         match msg with
-        | LoadNavCategoriesOperation (Start _) when model.NavCategories |> Deferred.isNotStarted && model.UncategorizedTerms |> Deferred.isNotStarted ->
+        | LoadNavCategoriesOperation (Start _) when model.NavCategories |> Deferred.hasNotBeenRequested && model.UncategorizedTerms |> Deferred.hasNotBeenRequested ->
             { model with NavCategories = InProgress; UncategorizedTerms = InProgress }
 
         | LoadNavCategoriesOperation (Finish (categories, uncategorizedTerms)) ->
@@ -51,12 +60,18 @@ module VocabularyState =
                 |> Map.ofList
 
             { model with 
-                NavCategories = categories |> Deferred.Resolved; 
-                UncategorizedTerms = uncategorizedTerms |> Deferred.Resolved
-                IsExpandedMap = isExpandedMap }
+                NavCategories = categories |> Deferred.Retrieved; 
+                UncategorizedTerms = uncategorizedTerms |> Deferred.Retrieved
+                CategoryExpanderMap = isExpandedMap }
 
-        | SetExpanded (id, v) ->
-            { model with IsExpandedMap = model.IsExpandedMap |> Map.add id v }
+        | LoadTermsOperation (Start _) when model.Terms |> Deferred.hasNotBeenRequested ->
+            { model with Terms = InProgress }
+
+        | LoadTermsOperation (Finish terms) ->
+            { model with Terms = terms |> Deferred.Retrieved }
+
+        | ToggleCategoryExpander (id, v) ->
+            { model with CategoryExpanderMap = model.CategoryExpanderMap |> Map.add id v }
 
         | _ -> model
 
@@ -64,15 +79,15 @@ module VocabularyState =
     let categories model =
         match model.NavCategories with
         | Deferred.InProgress
-        | Deferred.HasNotStartedYet -> []
-        | Deferred.Resolved l -> l
+        | Deferred.HasNotBeenRequestedYet -> []
+        | Deferred.Retrieved l -> l
 
 
     let uncategorizedTerms model =
         match model.UncategorizedTerms with
         | Deferred.InProgress
-        | Deferred.HasNotStartedYet -> []
-        | Deferred.Resolved l -> l
+        | Deferred.HasNotBeenRequestedYet -> []
+        | Deferred.Retrieved l -> l
 
 
     open Vocabulary.Categories.Ports
@@ -81,13 +96,22 @@ module VocabularyState =
 
         [<EffectMethod>]
         member _.Process(msg, dispatcher: IDispatcher) =
+            let finish operation result =
+                dispatcher.Dispatch(operation <| Operation.Finish result )
+
             task {
                 match msg with
                 | LoadNavCategoriesOperation (Start _) ->
                     let! categories = categoryRepository.GetNavCategoriesAsync()
                     let! uncategorized = termRepository.GetUncategorizedTermsAsync()
                     do
-                        dispatcher.Dispatch(Operation.Finish (categories |> Seq.toList, uncategorized |> Seq.toList) |> LoadNavCategoriesOperation)
+                        finish LoadNavCategoriesOperation (categories |> Seq.toList, uncategorized |> Seq.toList)
+
+                | LoadTermsOperation (Start _) ->
+                    let! fullTerms = termRepository.GetFullTermsAsync()
+                    do
+                        finish LoadTermsOperation fullTerms
+
                 | _ ->
                     return ()
             } :> Task

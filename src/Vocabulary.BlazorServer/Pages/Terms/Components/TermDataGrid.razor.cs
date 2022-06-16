@@ -1,14 +1,17 @@
-﻿using MediatR;
+﻿using Fluxor;
+using Fluxor.Blazor.Web.Components;
+using MediatR;
 using Quartz.Util;
 using Vocabulary.Adapters.Persistance;
 using Vocabulary.Adapters.Persistance.Models;
 using Vocabulary.Descriptions;
+using Vocabulary.WebClient.Store;
 
 #nullable enable
 
 namespace Vocabulary.BlazorServer.Pages.Terms.Components;
 
-public partial class TermDataGrid
+public partial class TermDataGrid : FluxorComponent
 {
     [Parameter]
     public RenderFragment? Columns { get; set; }
@@ -24,6 +27,12 @@ public partial class TermDataGrid
 
     [Inject]
     private IMediator Mediator { get; set; } = default!;
+
+    [Inject]
+    private IDispatcher Dispatcher { get; set; } = default!;
+
+    [Inject]
+    private IState<VocabularyState> State { get; set; } = default!;
 
     [Parameter]
     public string? CategoryName { get; set; }

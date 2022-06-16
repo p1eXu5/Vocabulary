@@ -2,18 +2,29 @@
 
 open System
 
+// --------
+// Synonym
+// --------
 
-type SynonymVm =
+type Synonym =
     {
         Name: string
     }
 
-type LinkVm =
+// --------
+// Link
+// --------
+
+type Link =
     {
         ResourceDescription: string
         Href: string
     }
 
+
+// --------
+// FullTerm
+// --------
 
 type FullTerm =
     {
@@ -22,10 +33,32 @@ type FullTerm =
         AdditionalName: string
         Description: string
         ValidationRules: string
-        Synonyms: SynonymVm list
+        Synonyms: Synonym list
         CategoryIds: Guid list
-        Links: LinkVm list
+        Links: Link list
     }
+
+module FullTerm =
+
+    let create id name additionalName description validationRule synonyms categoryIds links =
+        {
+            Id = id
+            Name = name
+            AdditionalName = additionalName
+            Description = description
+            ValidationRules = validationRule
+            Synonyms = synonyms |> Seq.toList
+            CategoryIds = categoryIds |> Seq.toList
+            Links = links |> Seq.toList
+        }
+
+    let toFSharpList fullTerms : FullTerm list =
+        fullTerms |> Seq.toList
+
+
+// --------
+// TermName
+// --------
 
 type TermName =
     {
@@ -35,6 +68,24 @@ type TermName =
     }
     with
         member this.HasAdditionalName with get() = this.AdditionalName |> Option.isSome
+
+
+module TermName =
+
+    let create id name additionalName =
+        {
+            Id = id
+            Name = name
+            AdditionalName =
+                match additionalName with
+                | null -> None
+                | _ -> additionalName |> Some
+        }
+
+
+// -----------
+// NavCategory
+// -----------
 
 type NavCategory =
     {
@@ -53,14 +104,4 @@ module NavCategory =
             TermNames = termNames |> Seq.toList
         }
 
-module TermName =
 
-    let create id name additionalName =
-        {
-            Id = id
-            Name = name
-            AdditionalName =
-                match additionalName with
-                | null -> None
-                | _ -> additionalName |> Some
-        }

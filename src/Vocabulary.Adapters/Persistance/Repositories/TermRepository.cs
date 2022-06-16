@@ -9,11 +9,13 @@ using p1eXu5.Result.Extensions;
 using Vocabulary.Terms.Abstractions;
 using Vocabulary.Adapters.Persistance.Models;
 using Vocabulary.DataContracts.Types;
+using Microsoft.FSharp.Collections;
 
 namespace Vocabulary.Adapters.Persistance.Repositories;
 
-using DbTerm = Vocabulary.Adapters.Persistance.Models.Term;
-
+using DbTerm = Term;
+using Link = DataContracts.Types.Link;
+using Synonym = DataContracts.Types.Synonym;
 
 public class TermRepository : ITermRepository
 {
@@ -33,10 +35,43 @@ public class TermRepository : ITermRepository
     public async Task<IEnumerable<TermName>> GetUncategorizedTermsAsync()
     {
         using var dbContext = await _dbContextFactory.CreateDbContextAsync();
-        var dbCategories = await dbContext.Terms.ToArrayAsync();
+        var dbTerms = await dbContext.Terms.OrderBy(t => t.Name).ToArrayAsync();
 
-        return dbCategories.Select(t => new TermName(t.Id, t.Name, t.AdditionalName));
+        return dbTerms.Select(t => new TermName(t.Id, t.Name, t.AdditionalName));
     }
+
+
+    public async Task<FSharpList<FullTerm>> GetFullTermsAsync()
+    {
+        using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        var dbTerms = 
+            await dbContext.Terms
+                .Include(t => t.Categories)
+                .Include(t => t.Synonyms)
+                .Include(t => t.Links)
+                .OrderBy(t => t.Name)
+                .ToArrayAsync();
+
+        IEnumerable<FullTerm> fullTerms =
+            dbTerms
+                .Select(t => 
+                    FullTermModule.create(
+                        t.Id,
+                        t.Name,
+                        t.AdditionalName,
+                        t.Description,
+                        t.ValidationRules,
+                        t.Synonyms.Select(s => new Synonym(s.Name)),
+                        t.Categories.Select(c => c.Id),
+                        t.Links.Select(l => new Link(l.ResourceDescription, l.Href))
+                    )
+                );
+
+        return
+            FullTermModule.toFSharpList(fullTerms);
+    }
+
+
 
     public async Task<Result<IReadOnlyCollection<TermNames>>> GetTermNamesAsync(CancellationToken cancellationToken)
     {

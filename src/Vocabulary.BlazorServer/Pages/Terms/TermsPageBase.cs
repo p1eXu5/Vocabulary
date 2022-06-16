@@ -1,6 +1,6 @@
 ﻿using MudBlazor.Services;
 
-namespace Vocabulary.BlazorServer.Pages.Terms.Components;
+namespace Vocabulary.BlazorServer.Pages.Terms;
 
 public class TermsPageBase : ComponentBase
 {

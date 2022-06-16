@@ -17,13 +17,13 @@ public partial class NavMenu : FluxorComponent, IDisposable
 
     private IEnumerable<NavCategory> Categories => VocabularyStateModule.categories(State.Value);
     private IEnumerable<TermName> UncategorizedTerms => VocabularyStateModule.uncategorizedTerms(State.Value);
-    private IReadOnlyDictionary<Guid, bool> IsExpanded => State.Value.IsExpandedMap;
+    private IReadOnlyDictionary<Guid, bool> IsExpanded => State.Value.CategoryExpanderMap;
 
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        Dispatcher.Dispatch(VocabularyStateModule.Msg.StartLoadNavCategoriesOperationMsg());
+        Dispatcher.Dispatch(VocabularyStateModule.Msg.LoadNavCategoriesMsg());
     }
 
     private void OnExpandedChanged(Guid id, bool value)

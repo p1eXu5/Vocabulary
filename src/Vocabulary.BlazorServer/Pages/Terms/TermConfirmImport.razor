@@ -1,12 +1,12 @@
 ﻿@page "/confirm-import/{ConfirmImportingTermsKey}"
 @layout IndexLayout
 @inherits TermsPageBase
-@using MudBlazor.Services
-@using Vocabulary.BlazorServer.Pages.Terms.Components
-@using Vocabulary.BlazorServer.Pages.Terms.Components.TermColumnSet.ConfirmTerms
-@using System.Collections.Immutable
-@using Microsoft.Extensions.Caching.Memory
-@using Vocabulary.Terms.DataContracts
+@    using MudBlazor.Services
+@    using Vocabulary.BlazorServer.Pages.Terms.Components
+@    using Vocabulary.BlazorServer.Pages.Terms.Components.TermColumnSet.ConfirmTerms
+@    using System.Collections.Immutable
+@    using Microsoft.Extensions.Caching.Memory
+@    using Vocabulary.Terms.DataContracts
 
 
 <ConfirmTermDataGrid @ref="_confirmTermListComponent" ConfirmImportingTermsKey="@ConfirmImportingTermsKey">

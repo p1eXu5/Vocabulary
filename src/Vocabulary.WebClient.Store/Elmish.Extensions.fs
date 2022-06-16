@@ -1,9 +1,9 @@
 ﻿module Elmish.Extensions
 
 type Deferred<'t> =
-    | HasNotStartedYet
+    | HasNotBeenRequestedYet
     | InProgress
-    | Resolved of 't
+    | Retrieved of 't
 
 /// <summary>
 /// see <see href="https://zaid-ajaj.github.io/the-elmish-book/#/chapters/commands/async-state"/>
@@ -15,6 +15,6 @@ type Operation<'TArg, 'TRes> =
 
 module Deferred =
 
-    let isNotStarted = function
-        | HasNotStartedYet -> true
+    let hasNotBeenRequested = function
+        | HasNotBeenRequestedYet -> true
         | _ -> false
