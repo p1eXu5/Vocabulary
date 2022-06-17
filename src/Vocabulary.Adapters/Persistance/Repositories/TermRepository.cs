@@ -62,7 +62,7 @@ public class TermRepository : ITermRepository
                         t.Description,
                         t.ValidationRules,
                         t.Synonyms.Select(s => new Synonym(s.Name)),
-                        t.Categories.Select(c => c.Id),
+                        t.Categories.Select(c => new CategoryName(c.Id, c.Name)),
                         t.Links.Select(l => new Link(l.ResourceDescription, l.Href))
                     )
                 );

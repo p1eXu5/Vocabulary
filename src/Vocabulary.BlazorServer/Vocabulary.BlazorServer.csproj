@@ -44,7 +44,7 @@
     <ProjectReference Include="..\Vocabulary.Adapters\Vocabulary.Adapters.csproj" />
     <ProjectReference Include="..\Vocabulary.DataContracts\Vocabulary.DataContracts.fsproj" />
     <ProjectReference Include="..\Vocabulary.WebClient.Store\Vocabulary.WebClient.Store.fsproj" />
-    <ProjectReference Include="..\Vocabulary\Vocabulary.csproj" />
+    <ProjectReference Include="..\Vocabulary_\Vocabulary_.csproj" />
   </ItemGroup>
 
 </Project>

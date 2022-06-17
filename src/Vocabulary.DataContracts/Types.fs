@@ -22,6 +22,17 @@ type Link =
     }
 
 
+// ----------
+// Categories
+// ----------
+
+type CategoryName =
+    {
+        Id: Guid
+        Name: string
+    }
+
+
 // --------
 // FullTerm
 // --------
@@ -34,13 +45,13 @@ type FullTerm =
         Description: string
         ValidationRules: string
         Synonyms: Synonym list
-        CategoryIds: Guid list
+        Categories: CategoryName list
         Links: Link list
     }
 
 module FullTerm =
 
-    let create id name additionalName description validationRule synonyms categoryIds links =
+    let create id name additionalName description validationRule synonyms categoryNames links =
         {
             Id = id
             Name = name
@@ -48,12 +59,14 @@ module FullTerm =
             Description = description
             ValidationRules = validationRule
             Synonyms = synonyms |> Seq.toList
-            CategoryIds = categoryIds |> Seq.toList
+            Categories = categoryNames |> Seq.toList
             Links = links |> Seq.toList
         }
 
     let toFSharpList fullTerms : FullTerm list =
         fullTerms |> Seq.toList
+
+
 
 
 // --------
@@ -82,6 +95,16 @@ module TermName =
                 | _ -> additionalName |> Some
         }
 
+
+// -----------------
+// NewTermDesription
+// -----------------
+
+type NewTermDescription =
+    {
+        TermId: Guid
+        Description: string
+    }
 
 // -----------
 // NavCategory

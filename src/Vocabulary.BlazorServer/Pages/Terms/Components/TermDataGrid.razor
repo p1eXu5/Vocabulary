@@ -5,11 +5,11 @@
 <PageTitle>@Title</PageTitle>
 
 <div>
-    <MudDataGrid T="Term"
+    <MudDataGrid T="FullTerm"
                  Class="mt-6"
                  ReadOnly="@true"
                  MultiSelection="true" 
-                 Items="@_terms" 
+                 Items="@Terms" 
                  Sortable="true" 
                  Filterable="true" 
                  QuickFilter="@_quickFilter"
@@ -19,7 +19,7 @@
                  RowsPerPage="25"
                  Breakpoint="Breakpoint.None"
                  Virtualize="@true"
-                 Loading="@_isLoading"
+                 Loading="@IsLoading"
                  LoadingProgressColor="Color.Info"
     >
         <ToolBarContent>

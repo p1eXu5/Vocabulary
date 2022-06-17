@@ -22,10 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Vocabulary\Vocabulary.csproj" />
+    <InternalsVisibleTo Include="Vocabulary.Adapters.Tests" />
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Vocabulary.Adapters.Tests"/>
+    <ProjectReference Include="..\Vocabulary_\Vocabulary_.csproj" />
   </ItemGroup>
 </Project>

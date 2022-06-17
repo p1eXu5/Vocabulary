@@ -6,6 +6,8 @@ open System.Threading.Tasks
 open Elmish.Extensions
 open Vocabulary.Terms.Ports
 open System
+open MediatR
+open Vocabulary.Descriptions
 
 type UncategorizedTerms = TermName list
 
@@ -21,7 +23,9 @@ type VocabularyState =
         NavCategories: Deferred<NavCategory list>
         UncategorizedTerms: Deferred<UncategorizedTerms>
         Terms: Deferred<FullTerm list>
+        NewTermDescription: Deferred<NewTermDescription>
         CategoryExpanderMap: Map<Guid, bool>
+        LastError: string option
     }
     with
         static member Init() =
@@ -29,7 +33,9 @@ type VocabularyState =
                 NavCategories = Deferred.HasNotBeenRequestedYet
                 UncategorizedTerms = Deferred.HasNotBeenRequestedYet
                 Terms = Deferred.HasNotBeenRequestedYet
+                NewTermDescription = Deferred.HasNotBeenRequestedYet
                 CategoryExpanderMap = Map.empty
+                LastError = None
             }
 
 
@@ -39,18 +45,24 @@ module VocabularyState =
 
     type Msg =
         | LoadNavCategoriesOperation of Operation<unit, (NavCategory list * UncategorizedTerms)>
-        | ToggleCategoryExpander of id: Guid * value: bool
         | LoadTermsOperation of Operation<unit, FullTerm list>
+        | FindLinksInDescriptionOperation of Operation<Guid, NewTermDescription>
+        | AcceptNewDescriptionOperation of Operation<unit, unit>
+        | ToggleCategoryExpander of id: Guid * value: bool
         with
-            static member LoadNavCategoriesMsg () = LoadNavCategoriesOperation (Start ())
-            static member SetExpandedMsg(id, value) = ToggleCategoryExpander (id, value)
-            static member LoadTermsMsg () = LoadTermsOperation (Start ())
+            static member LoadNavCategories = LoadNavCategoriesOperation (Start ())
+            static member LoadTerms = LoadTermsOperation (Start ())
+            static member FindLinksInDescription(termId) = FindLinksInDescriptionOperation (Start termId)
+            static member AcceptNewDescription = AcceptNewDescriptionOperation (Start ())
 
 
     [<ReducerMethod>]
     let update model msg =
         match msg with
-        | LoadNavCategoriesOperation (Start _) when model.NavCategories |> Deferred.hasNotBeenRequested && model.UncategorizedTerms |> Deferred.hasNotBeenRequested ->
+        // ----------------------------
+        //       Initialization
+        // ----------------------------
+        | LoadNavCategoriesOperation (Start _) ->
             { model with NavCategories = InProgress; UncategorizedTerms = InProgress }
 
         | LoadNavCategoriesOperation (Finish (categories, uncategorizedTerms)) ->
@@ -64,11 +76,26 @@ module VocabularyState =
                 UncategorizedTerms = uncategorizedTerms |> Deferred.Retrieved
                 CategoryExpanderMap = isExpandedMap }
 
-        | LoadTermsOperation (Start _) when model.Terms |> Deferred.hasNotBeenRequested ->
+        | LoadTermsOperation (Start _) ->
             { model with Terms = InProgress }
 
         | LoadTermsOperation (Finish terms) ->
             { model with Terms = terms |> Deferred.Retrieved }
+
+        // ----------------------------
+        //     NewTermDescription
+        // ----------------------------
+        | FindLinksInDescriptionOperation (Start _)
+        | AcceptNewDescriptionOperation (Start _) ->
+            { model with NewTermDescription = InProgress }
+
+        | FindLinksInDescriptionOperation (Finish newTermDescription) ->
+            { model with NewTermDescription = newTermDescription |> Deferred.Retrieved }
+
+        | AcceptNewDescriptionOperation (Finish _) ->
+            { model with NewTermDescription = Deferred.HasNotBeenRequestedYet }
+
+        // -----------------------------
 
         | ToggleCategoryExpander (id, v) ->
             { model with CategoryExpanderMap = model.CategoryExpanderMap |> Map.add id v }
@@ -89,10 +116,22 @@ module VocabularyState =
         | Deferred.HasNotBeenRequestedYet -> []
         | Deferred.Retrieved l -> l
 
+    let isTermsLoading model =
+        match model.Terms with
+        | Deferred.InProgress -> true
+        | _ -> false
+
+    let terms model =
+        match model.Terms with
+        | Deferred.InProgress
+        | Deferred.HasNotBeenRequestedYet -> []
+        | Deferred.Retrieved l -> l
+
+
 
     open Vocabulary.Categories.Ports
 
-    type Effects(categoryRepository: ICategoryRepository, termRepository: ITermRepository) =
+    type Effects(mediator: IMediator, categoryRepository: ICategoryRepository, termRepository: ITermRepository) =
 
         [<EffectMethod>]
         member _.Process(msg, dispatcher: IDispatcher) =
@@ -111,6 +150,9 @@ module VocabularyState =
                     let! fullTerms = termRepository.GetFullTermsAsync()
                     do
                         finish LoadTermsOperation fullTerms
+
+                | FindLinksInDescriptionOperation (Start termId) ->
+                    do! mediator.Send(CheckTermsCommand(termId))
 
                 | _ ->
                     return ()

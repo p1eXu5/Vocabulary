@@ -4,6 +4,7 @@ using MediatR;
 using Quartz.Util;
 using Vocabulary.Adapters.Persistance;
 using Vocabulary.Adapters.Persistance.Models;
+using Vocabulary.DataContracts.Types;
 using Vocabulary.Descriptions;
 using Vocabulary.WebClient.Store;
 
@@ -15,6 +16,13 @@ public partial class TermDataGrid : FluxorComponent
 {
     [Parameter]
     public RenderFragment? Columns { get; set; }
+
+    [Parameter]
+    public string? CategoryName { get; set; }
+
+    [Parameter]
+    public string? Search { get; set; }
+
 
     [Inject]
     private IDbContextFactory<VocabularyDbContext> DbContextFactory { get; set; } = default!;
@@ -34,24 +42,19 @@ public partial class TermDataGrid : FluxorComponent
     [Inject]
     private IState<VocabularyState> State { get; set; } = default!;
 
-    [Parameter]
-    public string? CategoryName { get; set; }
+    private bool IsLoading => VocabularyStateModule.isTermsLoading(State.Value);
 
-    [Parameter]
-    public string? Search { get; set; }
+    private IEnumerable<FullTerm> Terms => VocabularyStateModule.terms(State.Value);
 
-
-    private List<Term> _terms = new List<Term>();
     private string? _searchString;
     private string? _categoryName;
-    private bool _isLoading = true;
 
     private bool IsFilteringByCategory => !string.IsNullOrWhiteSpace(CategoryName);
     private string Title => IsFilteringByCategory ? $"{CategoryName} Terms" : "All Terms";
 
 
     // quick filter - filter globally across multiple columns with the same input
-    private Func<Term, bool> _quickFilter => x =>
+    private Func<FullTerm, bool> _quickFilter => x =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
         {
@@ -88,34 +91,15 @@ public partial class TermDataGrid : FluxorComponent
         return false;
     };
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         _categoryName = CategoryName;
         _searchString = Search;
-        await LoadDataAsync();
     }
 
-
-    private async Task LoadDataAsync()
+    protected override void OnInitialized()
     {
-        _isLoading = true;
-        using var dbContext = await DbContextFactory.CreateDbContextAsync();
-        var query = dbContext.Terms.Include(t => t.Synonyms).Include(t => t.Links).Include(t => t.Categories).OrderBy(t => t.Sequence);
-
-        if (!string.IsNullOrWhiteSpace(_categoryName))
-        {
-            _terms =
-                _categoryName.Equals("Uncategorized", StringComparison.Ordinal)
-                    ? await query.Where(t => !t.Categories.Any()).ToListAsync()
-                    : await query.Where(t => t.Categories.Any(c => c.Name == CategoryName)).ToListAsync();
-        }
-        else
-        {
-            _terms = await query.ToListAsync();
-        }
-
-        _searchString = Search;
-        _isLoading = false;
+        Dispatcher.Dispatch(VocabularyStateModule.Msg.LoadTerms());
     }
 
     private void ReloadTermsForSearch(string searchString)

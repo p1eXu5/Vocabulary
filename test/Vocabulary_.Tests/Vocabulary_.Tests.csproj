@@ -23,11 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Vocabulary\Vocabulary.csproj" />
+    <Folder Include="IntegrationTests\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="IntegrationTests\" />
+    <ProjectReference Include="..\..\src\Vocabulary_\Vocabulary_.csproj" />
   </ItemGroup>
 
 </Project>

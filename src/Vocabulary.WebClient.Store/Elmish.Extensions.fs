@@ -18,3 +18,7 @@ module Deferred =
     let hasNotBeenRequested = function
         | HasNotBeenRequestedYet -> true
         | _ -> false
+
+    let (|Retrieved|_|) = function
+    | Retrieved v -> v |> Some
+    | _ -> None
