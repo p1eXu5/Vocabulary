@@ -12,5 +12,7 @@ type TermsInDescription =
     }
 
 type ITermRepository =
-    abstract member FindTermsInDescriptionAsync : Guid -> CancellationToken -> Task<Result<TermsInDescription, string>>
+    abstract member FindTermsInDescriptionAsync : Guid -> CancellationToken -> Task<TermsInDescription option>
+    abstract member GetUncategorizedTermsAsync : unit -> Task<TermName seq>
+    abstract member GetFullTermsAsync : unit -> Task<FullTerm list>
 

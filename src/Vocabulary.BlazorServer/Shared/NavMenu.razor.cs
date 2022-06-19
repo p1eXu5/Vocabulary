@@ -5,6 +5,8 @@ using Vocabulary.WebClient.Store;
 
 namespace Vocabulary.BlazorServer.Shared;
 
+using Msg = VocabularyStateModule.Msg;
+
 public partial class NavMenu : FluxorComponent, IDisposable
 {
     private bool _grouping = true;
@@ -23,12 +25,12 @@ public partial class NavMenu : FluxorComponent, IDisposable
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        Dispatcher.Dispatch(VocabularyStateModule.Msg.LoadNavCategoriesMsg());
+        Dispatcher.Dispatch(Msg.LoadNavCategories);
     }
 
     private void OnExpandedChanged(Guid id, bool value)
     {
-        Dispatcher.Dispatch(VocabularyStateModule.Msg.SetExpandedMsg(id, value));
+        Dispatcher.Dispatch(Msg.NewToggleCategoryExpander(id, value));
     }
 }
 

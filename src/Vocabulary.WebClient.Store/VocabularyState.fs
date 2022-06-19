@@ -4,10 +4,9 @@ open Vocabulary.DataContracts.Types
 open Fluxor
 open System.Threading.Tasks
 open Elmish.Extensions
-open Vocabulary.Terms.Ports
 open System
 open MediatR
-open Vocabulary.Descriptions
+open Vocabulary.Terms
 
 type UncategorizedTerms = TermName list
 
@@ -49,6 +48,7 @@ module VocabularyState =
         | FindLinksInDescriptionOperation of Operation<Guid, NewTermDescription>
         | AcceptNewDescriptionOperation of Operation<unit, unit>
         | ToggleCategoryExpander of id: Guid * value: bool
+        | SetError of string
         with
             static member LoadNavCategories = LoadNavCategoriesOperation (Start ())
             static member LoadTerms = LoadTermsOperation (Start ())
@@ -129,7 +129,10 @@ module VocabularyState =
 
 
 
+    open System.Threading
     open Vocabulary.Categories.Ports
+    open Vocabulary.Terms.Types
+    open FsToolkit.ErrorHandling
 
     type Effects(mediator: IMediator, categoryRepository: ICategoryRepository, termRepository: ITermRepository) =
 
@@ -137,6 +140,9 @@ module VocabularyState =
         member _.Process(msg, dispatcher: IDispatcher) =
             let finish operation result =
                 dispatcher.Dispatch(operation <| Operation.Finish result )
+
+            let setError error =
+                dispatcher.Dispatch(SetError error)
 
             task {
                 match msg with
@@ -152,7 +158,10 @@ module VocabularyState =
                         finish LoadTermsOperation fullTerms
 
                 | FindLinksInDescriptionOperation (Start termId) ->
-                    do! mediator.Send(CheckTermsCommand(termId))
+                    let! newTermDescriptionResult = FindTermsInDescription.exec termRepository termId CancellationToken.None
+                    do
+                        newTermDescriptionResult
+                        |> Option.iter (finish FindLinksInDescriptionOperation)
 
                 | _ ->
                     return ()

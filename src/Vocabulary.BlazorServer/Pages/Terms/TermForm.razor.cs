@@ -12,6 +12,7 @@ using Vocabulary.Terms.Abstractions;
 using Vocabulary.Terms.DataContracts;
 using DbCategory = Vocabulary.Adapters.Persistance.Models.Category;
 using DbSynonym = Vocabulary.Adapters.Persistance.Models.Synonym;
+using Link = Vocabulary.Adapters.Persistance.Models.Link;
 using Synonym = Vocabulary.Terms.DataContracts.Synonym;
 
 namespace Vocabulary.BlazorServer.Pages.Terms;
@@ -49,7 +50,7 @@ public partial class TermForm : IAsyncDisposable
     private List<DbCategory> _categories = new List<DbCategory>();
 
     private Term _term = new();
-    private Link _newLink = new();
+    private Adapters.Persistance.Models.Link _newLink = new();
     private DbSynonym _newSynonym = new();
 
 

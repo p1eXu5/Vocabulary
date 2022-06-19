@@ -12,6 +12,8 @@ using Vocabulary.WebClient.Store;
 
 namespace Vocabulary.BlazorServer.Pages.Terms.Components;
 
+using Msg = VocabularyStateModule.Msg;
+
 public partial class TermDataGrid : FluxorComponent
 {
     [Parameter]
@@ -99,7 +101,7 @@ public partial class TermDataGrid : FluxorComponent
 
     protected override void OnInitialized()
     {
-        Dispatcher.Dispatch(VocabularyStateModule.Msg.LoadTerms());
+        Dispatcher.Dispatch(Msg.LoadTerms);
     }
 
     private void ReloadTermsForSearch(string searchString)
@@ -163,18 +165,19 @@ public partial class TermDataGrid : FluxorComponent
             ));
     }
 
-    internal async Task CheckDecriptionTerms(Guid termId)
+    internal void CheckDecriptionTerms(Guid termId)
     {
-        var res = await Mediator.Send(new CheckTermsCommand(termId));
+        Dispatcher.Dispatch(Msg.FindLinksInDescription(termId));
+        //var res = await Mediator.Send(new CheckTermsCommand(termId));
 
-        if (res.TryGetSucceededContext(out var newDescription))
-        {
-            var term = _terms.SingleOrDefault(t => t.Id == termId);
-            if (term is not null)
-            {
-                term.Description = newDescription;
-            }
-        }
+        //if (res.TryGetSucceededContext(out var newDescription))
+        //{
+        //    var term = Terms.SingleOrDefault(t => t.Id == termId);
+        //    if (term is not null)
+        //    {
+        //        term.Description = newDescription;
+        //    }
+        //}
     }
 
     internal async Task RemoveTerm(Guid termId)
@@ -193,7 +196,7 @@ public partial class TermDataGrid : FluxorComponent
             await dbContext.SaveChangesAsync();
         }
 
-        _terms.Remove(_terms.Single(t => t.Id == termId));
+        // TODO: change with action - Terms.Remove(Terms.Single(t => t.Id == termId));
 
         // await InvokeAsync(StateHasChanged);
         await AppState.NotifyCategoryChangedAsync(new AsyncEventArgs() { RemovedTermId = termId });

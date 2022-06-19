@@ -17,4 +17,8 @@
     <PackageReference Include="Fluxor" Version="5.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Vocabulary\Vocabulary.fsproj" />
+  </ItemGroup>
+
 </Project>

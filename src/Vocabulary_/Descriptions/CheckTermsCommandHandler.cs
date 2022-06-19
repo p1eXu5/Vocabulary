@@ -92,7 +92,9 @@ namespace Vocabulary.Descriptions
                 {
                     originLength = pos.OriginInd - startOrigin;
                     resSpan = result.Slice(startRes, originLength);
-                    description.Slice(startOrigin, originLength).CopyTo(resSpan);
+                    description
+                        .Slice(startOrigin, originLength)
+                        .CopyTo(resSpan);
 
                     startRes += originLength;
                     resSpan = result.Slice(startRes, pos.Link.Length);
@@ -105,7 +107,8 @@ namespace Vocabulary.Descriptions
 
             originLength = descriptionTerms.Desription.Length - startOrigin;
             resSpan = result.Slice(startRes, originLength);
-            description.Slice(startOrigin, originLength).CopyTo(resSpan);
+            description.Slice(startOrigin, originLength)
+                .CopyTo(resSpan);
 
             return new String(buff).ToSuccessResult();
         }
