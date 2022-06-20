@@ -4,10 +4,10 @@
 
 @*<SelectColumn T="Term" />*@
 
-<Column T="Term" Field="Sequence" Title="#" Sortable="true" Filterable="false" CellClass="sequence-column" />
+<Column T="FullTerm" Field="Sequence" Title="#" Sortable="true" Filterable="false" CellClass="sequence-column" />
 
 <!-- Name -->
-<Column T="Term" Title="Term" SortBy="@(term => term.Name)" CellClass="term-column">
+<Column T="FullTerm" Title="Term" SortBy="@(term => term.Name)" CellClass="term-column">
     <CellTemplate>
         <MudText Typo="Typo.h6" Style="color: var(--mud-palette-warning-lighten);">@context.Item.Name</MudText>
         @if (!string.IsNullOrWhiteSpace(context.Item.AdditionalName)) {
@@ -18,7 +18,7 @@
             <MudText Typo="Typo.body2" Class="d-inline-block pr-1" ><b>Categories</b>:</MudText>
             @if (context.Item.Categories.Any()) 
             {
-                @foreach (var item in context.Item.Categories.Take(context.Item.Categories.Count - 1))
+                @foreach (var item in context.Item.Categories.Take(context.Item.Categories.Length - 1))
                 {
                     <MudText Typo="Typo.body2" Class="d-inline-block">@(item.Name),</MudText>
                 }
@@ -35,7 +35,7 @@
             {
                 <MudText Typo="Typo.body2" Class="d-inline-block pr-1"><b>Synonyms</b>:</MudText>
 
-                @foreach (var item in context.Item.Synonyms.Take(context.Item.Synonyms.Count - 1))
+                @foreach (var item in context.Item.Synonyms.Take(context.Item.Synonyms.Length - 1))
                 {
                     <MudText Typo="Typo.body2" Class="d-inline-block pr-1">@(item.Name),</MudText>
                 }
@@ -50,7 +50,7 @@
 </Column>
 
 <!-- Description -->
-<Column T="Term" Title="Description" Sortable="false"  CellStyle="@BroadestColumnMinWidth">
+<Column T="FullTerm" Title="Description" Sortable="false" CellStyle="@BroadestColumnMinWidth">
     <CellTemplate>
         <div>
             <MudMarkdown Value="@context.Item.Description" />
@@ -70,7 +70,7 @@
 </Column>
 
 <!-- ValidationRules -->
-<Column T="Term" Title="Validation Rules" Sortable="false" CellStyle="@BroadestColumnMinWidth">
+<Column T="FullTerm" Title="Validation Rules" Sortable="false" CellStyle="@BroadestColumnMinWidth">
     <CellTemplate>
         <div>
             <MudMarkdown Value="@context.Item.ValidationRules" />
@@ -78,7 +78,7 @@
     </CellTemplate>
 </Column>
 
-<Column T="Term" Sortable="false">
+<Column T="FullTerm" Sortable="false">
     <CellTemplate>
         <TermMenu Compact="true"
                   OnEditRequested="@(() => OnNavigateToEdit(context.Item.Id.ToString()))"
