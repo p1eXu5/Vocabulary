@@ -130,11 +130,11 @@ module VocabularyState =
 
 
     open System.Threading
-    open Vocabulary.Categories.Ports
+    open Vocabulary.Categories.Types
     open Vocabulary.Terms.Types
     open FsToolkit.ErrorHandling
 
-    type Effects(mediator: IMediator, categoryRepository: ICategoryRepository, termRepository: ITermRepository) =
+    type Effects(categoryRepository: ICategoryRepository, termRepository: ITermRepository) =
 
         [<EffectMethod>]
         member _.Process(msg, dispatcher: IDispatcher) =

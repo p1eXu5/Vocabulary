@@ -16,3 +16,11 @@ type ITermRepository =
     abstract member GetUncategorizedTermsAsync : unit -> Task<TermName seq>
     abstract member GetFullTermsAsync : unit -> Task<FullTerm list>
 
+
+module TermsInDescription =
+
+    let create description termNames =
+        {
+            Description = description
+            TermNames = termNames |> Seq.toList
+        }

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using p1eXu5.Result;
 using Vocabulary.Terms.DataContracts;
-using Vocabulary.Terms.Ports;
+using Vocabulary.Terms.Types;
 using AutoMapper;
 using System.Collections.Immutable;
 using p1eXu5.Result.Extensions;
@@ -10,6 +10,8 @@ using Vocabulary.Terms.Abstractions;
 using Vocabulary.Adapters.Persistance.Models;
 using Vocabulary.DataContracts.Types;
 using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Core;
+using Vocabulary.Descriptions.DataContracts;
 
 namespace Vocabulary.Adapters.Persistance.Repositories;
 
@@ -17,7 +19,7 @@ using DbTerm = Term;
 using Link = DataContracts.Types.Link;
 using Synonym = DataContracts.Types.Synonym;
 
-public class TermRepository : ITermRepository
+public class TermRepository : Vocabulary.Terms.Ports.ITermRepository, Vocabulary.Terms.Types.ITermRepository
 {
     private readonly IDbContextFactory<VocabularyDbContext> _dbContextFactory;
     private readonly IMapper _mapper;
@@ -31,7 +33,6 @@ public class TermRepository : ITermRepository
         _logger = logger;
     }
 
-
     public async Task<IEnumerable<TermName>> GetUncategorizedTermsAsync()
     {
         using var dbContext = await _dbContextFactory.CreateDbContextAsync();
@@ -39,7 +40,6 @@ public class TermRepository : ITermRepository
 
         return dbTerms.Select(t => new TermName(t.Id, t.Name, t.AdditionalName));
     }
-
 
     public async Task<FSharpList<FullTerm>> GetFullTermsAsync()
     {
@@ -71,8 +71,6 @@ public class TermRepository : ITermRepository
             FullTermModule.toFSharpList(fullTerms);
     }
 
-
-
     public async Task<Result<IReadOnlyCollection<TermNames>>> GetTermNamesAsync(CancellationToken cancellationToken)
     {
         using VocabularyDbContext dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -89,7 +87,6 @@ public class TermRepository : ITermRepository
         return result.ToSuccessResult();
     }
 
-
     public async Task<Result<IReadOnlyCollection<ExportingTerm>>> GetTermsAsync(CancellationToken cancellationToken)
     {
         using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -104,7 +101,6 @@ public class TermRepository : ITermRepository
 
         return result.ToSuccessResult();
     }
-
 
     public async Task<Result> ImportAsync(IEnumerable<IConfirmedTerm> importingTerms)
     {
@@ -134,7 +130,6 @@ public class TermRepository : ITermRepository
         }
     }
 
-
     public async Task<Result> DeleteAsync(Guid termId)
     {
         using var dbContext = await _dbContextFactory.CreateDbContextAsync();
@@ -161,5 +156,38 @@ public class TermRepository : ITermRepository
         }
 
         return Result.Failure("Term has not been found.");
+    }
+
+    public async Task<FSharpOption<TermsInDescription>> FindTermsInDescriptionAsync(Guid termId, CancellationToken cancellationToken)
+    {
+        using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var term = await dbContext.Terms.SingleOrDefaultAsync(t => t.Id == termId, cancellationToken);
+
+        if (term is null)
+        {
+            _logger.LogWarning("Has no term with id {termId}", termId);
+            return FSharpOption<TermsInDescription>.None;
+        }
+
+        if (string.IsNullOrWhiteSpace(term.Description))
+        {
+            _logger.LogDebug("Term {termId} has no description", termId);
+            return FSharpOption<TermsInDescription>.None;
+        }
+
+        var termNames =
+            await dbContext.Terms
+                .OrderBy(t => t.Name)
+                .Select(t => new TermName(t.Id, t.Name,t.AdditionalName))
+                .ToArrayAsync(cancellationToken);
+
+        if (termNames.Any())
+        {
+            TermsInDescription termsInDescription = TermsInDescriptionModule.create(term.Description, termNames);
+            return FSharpOption<TermsInDescription>.Some(termsInDescription);
+        }
+
+        _logger.LogWarning("Have no terms.");
+        return FSharpOption<TermsInDescription>.None;
     }
 }

@@ -9,7 +9,7 @@ using Vocabulary.DataContracts.Types;
 
 namespace Vocabulary.Adapters.Persistance.Repositories;
 
-public class CategoryRepository : ICategoryRepository
+public class CategoryRepository : ICategoryRepository, Vocabulary.Categories.Types.ICategoryRepository
 {
     private readonly IDbContextFactory<VocabularyDbContext> _dbContextFactory;
     private readonly IMapper _mapper;
@@ -25,7 +25,7 @@ public class CategoryRepository : ICategoryRepository
     /// </summary>
     /// <typeparam name="TCategory"></typeparam>
     /// <returns></returns>
-    public async Task<IEnumerable<NavCategory>> GetNavCategoriesAsync<TCategory>()
+    public async Task<IEnumerable<NavCategory>> GetNavCategoriesAsync()
     {
         using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         var dbCategories = await dbContext.Categories.Include(c => c.Terms).ToArrayAsync();
@@ -81,6 +81,4 @@ public class CategoryRepository : ICategoryRepository
 
         return Result<Models.Category>.Failure($"Could not find Category by id {categoryId}");
     }
-
-
 }

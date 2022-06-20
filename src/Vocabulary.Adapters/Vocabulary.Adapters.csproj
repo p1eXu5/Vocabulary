@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Vocabulary\Vocabulary.fsproj" />
     <ProjectReference Include="..\Vocabulary_\Vocabulary_.csproj" />
   </ItemGroup>
 </Project>
