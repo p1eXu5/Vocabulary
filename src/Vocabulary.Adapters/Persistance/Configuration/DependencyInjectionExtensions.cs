@@ -17,8 +17,12 @@ public static class DependencyInjectionExtensions
         });
 
         services.AddTransient<IDescriptionRepository, DescriptionRepository>();
-        services.AddTransient<ITermRepository, TermRepository>();
-        services.AddTransient<ICategoryRepository, CategoryRepository>();
+        
+        services.AddTransient<Vocabulary.Terms.Ports.ITermRepository, TermRepository>();
+        services.AddTransient<Vocabulary.Terms.Types.ITermRepository, TermRepository>();
+
+        services.AddTransient<Vocabulary.Categories.Ports.ICategoryRepository, CategoryRepository>();
+        services.AddTransient<Vocabulary.Categories.Types.ICategoryRepository, CategoryRepository>();
 
         return services;
     }
