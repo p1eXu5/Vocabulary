@@ -40,6 +40,7 @@ type CategoryName =
 type FullTerm =
     {
         Id: Guid
+        Sequence: int
         Name: string
         AdditionalName: string
         Description: string
@@ -51,9 +52,10 @@ type FullTerm =
 
 module FullTerm =
 
-    let create id name additionalName description validationRule synonyms categoryNames links =
+    let create id sequence name additionalName description validationRule synonyms categoryNames links =
         {
             Id = id
+            Sequence = sequence
             Name = name
             AdditionalName = additionalName
             Description = description

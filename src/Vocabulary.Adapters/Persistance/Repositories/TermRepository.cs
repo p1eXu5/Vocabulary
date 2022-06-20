@@ -57,6 +57,7 @@ public class TermRepository : Vocabulary.Terms.Ports.ITermRepository, Vocabulary
                 .Select(t => 
                     FullTermModule.create(
                         t.Id,
+                        t.Sequence,
                         t.Name,
                         t.AdditionalName,
                         t.Description,
