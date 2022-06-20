@@ -6,6 +6,9 @@
 
 <Column T="FullTerm" Field="Sequence" Title="#" Sortable="true" Filterable="false" CellClass="sequence-column" />
 
+@*
+
+
 <!-- Name -->
 <Column T="FullTerm" Title="Term" SortBy="@(term => term.Name)" CellClass="term-column">
     <CellTemplate>
@@ -42,9 +45,7 @@
 
                 <MudText Typo="Typo.body2" Class="d-inline-block">@(context.Item.Synonyms.Last().Name).</MudText>
             }
-            @*else {
-                <MudText Typo="Typo.body2" Class="d-inline-block"><i>no synonyms</i>.</MudText>
-            }*@
+            
         </div>
     </CellTemplate>
 </Column>
@@ -87,3 +88,5 @@
     </CellTemplate>
 </Column>
 
+
+*@

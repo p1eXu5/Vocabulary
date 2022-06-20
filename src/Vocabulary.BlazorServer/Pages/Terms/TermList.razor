@@ -5,7 +5,7 @@
 @using Vocabulary.BlazorServer.Pages.Terms.Components.TermColumnSet.TermList
 
 @switch(Breakpoints) {
-    case Breakponts.Lg:
+    @*case Breakponts.Lg:
         <TermDataGrid @ref="_termListComponent" CategoryName="@CategoryName" Search="@Search">
             <Columns>
                 <TermListLgColumns NavigateToEdit="@_termListComponent!.NavigateToEdit" 
@@ -28,7 +28,7 @@
                                    />
             </Columns>
         </TermDataGrid>
-        break;
+        break;*@
 
     case Breakponts.Sm:
         <TermDataGrid @ref="_termListComponent" CategoryName="@CategoryName" Search="@Search">

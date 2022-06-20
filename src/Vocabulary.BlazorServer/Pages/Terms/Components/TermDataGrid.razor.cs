@@ -36,9 +36,6 @@ public partial class TermDataGrid : FluxorComponent
     private AppState AppState { get; set; } = default!;
 
     [Inject]
-    private IMediator Mediator { get; set; } = default!;
-
-    [Inject]
     private IDispatcher Dispatcher { get; set; } = default!;
 
     [Inject]
@@ -101,6 +98,7 @@ public partial class TermDataGrid : FluxorComponent
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
         Dispatcher.Dispatch(Msg.LoadTerms);
     }
 
@@ -168,16 +166,6 @@ public partial class TermDataGrid : FluxorComponent
     internal void CheckDecriptionTerms(Guid termId)
     {
         Dispatcher.Dispatch(Msg.FindLinksInDescription(termId));
-        //var res = await Mediator.Send(new CheckTermsCommand(termId));
-
-        //if (res.TryGetSucceededContext(out var newDescription))
-        //{
-        //    var term = Terms.SingleOrDefault(t => t.Id == termId);
-        //    if (term is not null)
-        //    {
-        //        term.Description = newDescription;
-        //    }
-        //}
     }
 
     internal async Task RemoveTerm(Guid termId)
