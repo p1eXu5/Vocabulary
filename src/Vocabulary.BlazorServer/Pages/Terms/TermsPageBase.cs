@@ -12,6 +12,10 @@ public class TermsPageBase : ComponentBase
 
     protected Breakponts Breakpoints = Breakponts.Lg;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
