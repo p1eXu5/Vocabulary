@@ -1,2 +1,0 @@
-﻿namespace Vocabulary.WebClient.Store
-

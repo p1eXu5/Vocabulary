@@ -7,12 +7,14 @@ using Vocabulary.Adapters.Persistance.Models;
 using Vocabulary.DataContracts.Types;
 using Vocabulary.Descriptions;
 using Vocabulary.WebClient.Store;
+using Vocabulary.WebClient.Store.Types;
+using Vocabulary.WebClient.Store.VocabularyState;
 
 #nullable enable
 
 namespace Vocabulary.BlazorServer.Pages.Terms.Components;
 
-using Msg = VocabularyStateModule.Msg;
+using TermListMsg = Vocabulary.WebClient.Store.TermListState.Msg;
 
 public partial class TermDataGrid : FluxorComponent
 {
@@ -39,11 +41,12 @@ public partial class TermDataGrid : FluxorComponent
     private IDispatcher Dispatcher { get; set; } = default!;
 
     [Inject]
-    private IState<VocabularyState> State { get; set; } = default!;
+    private IState<VocabularyState> VocabularyState { get; set; } = default!;
+    private TermListState TermListState => VocabularyState.Value.TermListState;
 
-    private bool IsLoading => VocabularyStateModule.isTermsLoading(State.Value);
+    private bool IsLoading => TermListState.IsTermsLoading;
 
-    private IEnumerable<FullTerm> Terms => VocabularyStateModule.terms(State.Value);
+    private IEnumerable<FullTerm> Terms => TermListState.GetTerms();
 
     private string? _searchString;
     private string? _categoryName;
@@ -99,7 +102,7 @@ public partial class TermDataGrid : FluxorComponent
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        Dispatcher.Dispatch(Msg.LoadTerms);
+        Dispatcher.Dispatch(Msg.NewTermListMsg(TermListMsg.LoadTerms));
     }
 
     private void ReloadTermsForSearch(string searchString)
@@ -163,10 +166,9 @@ public partial class TermDataGrid : FluxorComponent
             ));
     }
 
-    internal void CheckDecriptionTerms(Guid termId)
-    {
-        Dispatcher.Dispatch(Msg.FindLinksInDescription(termId));
-    }
+    internal void FindLinksInDescription(Guid termId)
+        => Dispatcher.Dispatch(Msg.NewTermListMsg(TermListMsg.FindLinksInDescription(termId)));
+
 
     internal async Task RemoveTerm(Guid termId)
     {

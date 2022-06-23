@@ -4,7 +4,7 @@
         <MudText Typo="Typo.subtitle1" Class="subtitle" Style="color: #ebd2b7 !important;">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis. 
         </MudText>
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" Href="/terms" Class="mx-auto px-16">
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" Href="@_termsHref" Class="mx-auto px-16">
             Terms
         </MudButton>
         <ExportImport @bind-IsLoading="@_isLoading" Class="mt-16 gap-4" />
@@ -17,7 +17,7 @@
         <MudText Typo="Typo.subtitle1" Style="font-weight: 200; font-size: .875rem; color: #ebd2b7 !important;" Class="subtitle">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis. 
         </MudText>
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" Href="/terms" Class="mx-auto px-16">
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" Href="@_termsHref" Class="mx-auto px-16">
             Terms
         </MudButton>
         <ExportImport @bind-IsLoading="@_isLoading" Class="mt-16 gap-4" />
@@ -30,4 +30,6 @@
 
 @code {
     private bool _isLoading;
+
+    private string _termsHref = "/terms";
 }

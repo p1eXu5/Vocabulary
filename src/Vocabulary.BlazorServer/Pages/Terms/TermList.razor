@@ -4,13 +4,13 @@
 @using Vocabulary.BlazorServer.Pages.Terms.Components
 @using Vocabulary.BlazorServer.Pages.Terms.Components.TermColumnSet.TermList
 
-@switch(Breakpoints) {
+@switch(base.Breakpoints) {
     case Breakponts.Lg:
         <TermDataGrid @ref="_termListComponent" CategoryName="@CategoryName" Search="@Search">
             <Columns>
                 <TermListLgColumns NavigateToEdit="@_termListComponent!.NavigateToEdit" 
                                    NavigateToCopy="@_termListComponent.NavigateToCopy" 
-                                   CheckDecriptionTerms="@_termListComponent.CheckDecriptionTerms"
+                                   CheckDecriptionTerms="@_termListComponent.FindLinksInDescription"
                                    RemoveTerm="@_termListComponent.RemoveTerm"
                                    BroadestColumnMinWidth="min-width: 30rem;"/>
             </Columns>
@@ -22,7 +22,7 @@
             <Columns>
                 <TermListMdColumns NavigateToEdit="@_termListComponent!.NavigateToEdit"
                                    NavigateToCopy="@_termListComponent.NavigateToCopy"
-                                   CheckDecriptionTerms="@_termListComponent.CheckDecriptionTerms"
+                                   CheckDecriptionTerms="@_termListComponent.FindLinksInDescription"
                                    RemoveTerm="@_termListComponent.RemoveTerm"
                                    BroadestColumnMinWidth="min-width: 30rem;"
                                    />
@@ -35,7 +35,19 @@
             <Columns>
                 <TermListSmColumns NavigateToEdit="@_termListComponent!.NavigateToEdit" 
                                    NavigateToCopy="@_termListComponent.NavigateToCopy" 
-                                   CheckDecriptionTerms="@_termListComponent.CheckDecriptionTerms"
+                                   CheckDecriptionTerms="@_termListComponent.FindLinksInDescription"
+                                   RemoveTerm="@_termListComponent.RemoveTerm"
+                                   />
+            </Columns>
+        </TermDataGrid>
+        break;
+
+    case Breakponts.Xs:
+        <TermDataGrid @ref="@_termListComponent" CategoryName="@CategoryName" Search="@Search">
+            <Columns>
+                <TermListXsColumns NavigateToEdit="@_termListComponent!.NavigateToEdit" 
+                                   NavigateToCopy="@_termListComponent.NavigateToCopy" 
+                                   CheckDecriptionTerms="@_termListComponent.FindLinksInDescription"
                                    RemoveTerm="@_termListComponent.RemoveTerm"
                                    />
             </Columns>
@@ -43,15 +55,7 @@
         break;
 
     default:
-        <TermDataGrid @ref="@_termListComponent" CategoryName="@CategoryName" Search="@Search">
-            <Columns>
-                <TermListXsColumns NavigateToEdit="@_termListComponent!.NavigateToEdit" 
-                                   NavigateToCopy="@_termListComponent.NavigateToCopy" 
-                                   CheckDecriptionTerms="@_termListComponent.CheckDecriptionTerms"
-                                   RemoveTerm="@_termListComponent.RemoveTerm"
-                                   />
-            </Columns>
-        </TermDataGrid>
+        <div></div>
         break;
 }
 

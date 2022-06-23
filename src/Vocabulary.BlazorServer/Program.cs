@@ -35,7 +35,7 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddLogging(logginBuilder => { logginBuilder.AddSeq(builder.Configuration.GetSection("Seq")); });
 
-var currentAssembly = typeof(Vocabulary.WebClient.Store.VocabularyState).Assembly;
+var currentAssembly = typeof(Vocabulary.WebClient.Store.Types.VocabularyState).Assembly;
 builder.Services.AddFluxor(options => {
     options.ScanAssemblies(currentAssembly);
 #if DEBUG

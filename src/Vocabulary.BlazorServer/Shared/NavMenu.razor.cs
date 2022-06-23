@@ -1,11 +1,11 @@
 ﻿using Fluxor;
 using Fluxor.Blazor.Web.Components;
 using Vocabulary.DataContracts.Types;
-using Vocabulary.WebClient.Store;
+using Vocabulary.WebClient.Store.Types;
+using Vocabulary.WebClient.Store.VocabularyState;
 
 namespace Vocabulary.BlazorServer.Shared;
 
-using Msg = VocabularyStateModule.Msg;
 
 public partial class NavMenu : FluxorComponent, IDisposable
 {
@@ -17,8 +17,8 @@ public partial class NavMenu : FluxorComponent, IDisposable
     [Inject] private IState<VocabularyState> State { get; set; } = default!;
 
 
-    private IEnumerable<NavCategory> Categories => VocabularyStateModule.categories(State.Value);
-    private IEnumerable<TermName> UncategorizedTerms => VocabularyStateModule.uncategorizedTerms(State.Value);
+    private IEnumerable<NavCategory> Categories => State.Value.GetNavCategories();
+    private IEnumerable<TermName> UncategorizedTerms => State.Value.GetUncategorizedTerms();
     private IReadOnlyDictionary<Guid, bool> IsExpanded => State.Value.CategoryExpanderMap;
 
 

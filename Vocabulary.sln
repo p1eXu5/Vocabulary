@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocabulary_", "src\Vocabula
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vocabulary_.Tests", "test\Vocabulary_.Tests\Vocabulary_.Tests.csproj", "{C2BFAC8B-562B-4DBD-8A37-4012D3F76632}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Vocabulary", "src\Vocabulary\Vocabulary.fsproj", "{A54806BA-795E-492B-8271-FCBA9DE20D10}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Vocabulary", "src\Vocabulary\Vocabulary.fsproj", "{A54806BA-795E-492B-8271-FCBA9DE20D10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -7,10 +7,9 @@
 
   <ItemGroup>
     <Compile Include="Elmish.Extensions.fs" />
-    <Compile Include="Utility.fs" />
-    <Compile Include="Term.fs" />
-    <Compile Include="TermListState.fs" />
-    <Compile Include="VocabularyState.fs" />
+    <Compile Include="Vocabulary\TermState.fs" />
+    <Compile Include="Vocabulary\TermListState.fs" />
+    <Compile Include="Vocabulary\VocabularyState.fs" />
   </ItemGroup>
 
   <ItemGroup>

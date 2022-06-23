@@ -10,7 +10,7 @@ public class TermsPageBase : ComponentBase
     private const int DRAWER_WIDTH = 240;
     private Guid _subscriptionId;
 
-    protected Breakponts Breakpoints = Breakponts.Lg;
+    protected Breakponts Breakpoints { get; private set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,6 +89,7 @@ public class TermsPageBase : ComponentBase
 
     protected enum Breakponts
     {
+        Unset,
         Lg,
         Md,
         Sm,

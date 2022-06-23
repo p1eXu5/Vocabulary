@@ -15,10 +15,12 @@ type Operation<'TArg, 'TRes> =
 
 module Deferred =
 
+    let value = function
+        | Retrieved v -> v |> Some
+        | _ -> None
+
+    let (|Retrieved|_|) = value
+
     let hasNotBeenRequested = function
         | HasNotBeenRequestedYet -> true
         | _ -> false
-
-    let (|Retrieved|_|) = function
-    | Retrieved v -> v |> Some
-    | _ -> None
