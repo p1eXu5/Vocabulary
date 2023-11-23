@@ -4,10 +4,10 @@
 
 @*<SelectColumn T="Term" />*@
 
-<Column T="Term" Field="Sequence" Title="#" Sortable="true" Filterable="false" CellClass="sequence-column" />
+<PropertyColumn T="Term" TProperty="int" Property="x => x.Sequence" Title="#" Sortable="true" Filterable="false" CellClass="sequence-column" />
 
 <!-- Name -->
-<Column T="Term" Title="Term" SortBy="@(term => term.Name)" CellClass="term-column">
+<TemplateColumn T="Term" Title="Term" SortBy="@(term => term.Name)" CellClass="term-column">
     <CellTemplate>
         <MudText Typo="Typo.h6" Style="color: var(--mud-palette-warning-lighten);">@context.Item.Name</MudText>
         @if (!string.IsNullOrWhiteSpace(context.Item.AdditionalName)) {
@@ -47,10 +47,10 @@
             }*@
         </div>
     </CellTemplate>
-</Column>
+</TemplateColumn>
 
 <!-- Description -->
-<Column T="Term" Title="Description" Sortable="false"  CellStyle="@BroadestColumnMinWidth">
+<TemplateColumn T="Term" Title="Description" Sortable="false" CellStyle="@BroadestColumnMinWidth">
     <CellTemplate>
         <div>
             <MudMarkdown Value="@context.Item.Description" />
@@ -67,18 +67,18 @@
             </MudList>
         }
     </CellTemplate>
-</Column>
+</TemplateColumn>
 
 <!-- ValidationRules -->
-<Column T="Term" Title="Validation Rules" Sortable="false" CellStyle="@BroadestColumnMinWidth">
+<TemplateColumn T="Term" Title="Validation Rules" Sortable="false" CellStyle="@BroadestColumnMinWidth">
     <CellTemplate>
         <div>
             <MudMarkdown Value="@context.Item.ValidationRules" />
         </div>
     </CellTemplate>
-</Column>
+</TemplateColumn>
 
-<Column T="Term" Sortable="false">
+<TemplateColumn T="Term" Sortable="false">
     <CellTemplate>
         <TermMenu Compact="true"
                   OnEditRequested="@(() => OnNavigateToEdit(context.Item.Id.ToString()))"
@@ -87,4 +87,4 @@
                   OnRemoveRequested="@(() => OnRemoveTerm(context.Item.Id))"
                   />
     </CellTemplate>
-</Column>
+</TemplateColumn>

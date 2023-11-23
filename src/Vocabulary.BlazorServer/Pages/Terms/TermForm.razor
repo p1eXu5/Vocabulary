@@ -20,11 +20,11 @@
         <MudCardContent>
             <MudExpansionPanels MultiExpansion="true" Elevation="3">
 
+                <!-- Names -->
                 <MudExpansionPanel Text="Term" @bind-IsExpanded="@_termExpanded">
-                    <!-- Names -->
                     <MudTextField Label="Term" HelperText="Max. 255 characters" @bind-Value="@_term.Name" For="@(() => _term.Name)"  
                                   DebounceInterval="500" 
-                                  OnDebounceIntervalElapsed="CheckSimilarTerms" />
+                                   />
 
                     @if (_similarTermNames.Any())
                     {

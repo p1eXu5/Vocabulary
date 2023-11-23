@@ -9,8 +9,8 @@ public interface ICommand : IRequest
 public interface ICommand<out TResponse> : IRequest<TResponse>
 { }
 
-public interface IResultCommand<TResponse> : IRequest<Result<TResponse>>
+public interface IResultCommand<TResponse> : IRequest<Result<TResponse, string>>
 { }
 
-public interface IResultCommand : IRequest<Result>
+public interface IResultCommand : IRequest<Result<Unit, string>>
 { }

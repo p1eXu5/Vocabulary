@@ -2,24 +2,24 @@
 
 @inherits ConfirmTermListActions
 
-<Column T="ConfirmImportingTerm" Title="" SortBy="@(term => term.IsNotInDb)" >
+<PropertyColumn T="ConfirmImportingTerm" TProperty="bool" Title="" SortBy="@(term => term.IsNotInDb)" >
     <CellTemplate>
         <MudCheckBox T="bool" Checked="@context.Item.IsNotInDb" CheckedChanged="@(_ => OnIsNotInDbChanged(context.Item.ImportingTerm.Id))"></MudCheckBox>
     </CellTemplate>
-</Column>
+</PropertyColumn>
 
 <!-- Name -->
-<Column T="ConfirmImportingTerm" Title="Term" SortBy="@(term => term.ImportingTerm.Name)"  CellClass="term-column">
+<TemplateColumn T="ConfirmImportingTerm" Title="Term" SortBy="@(term => term.ImportingTerm.Name)" CellClass="term-column">
     <CellTemplate>
         <MudText Typo="Typo.h6" Style="color: var(--mud-palette-warning-lighten);">@context.Item.ImportingTerm.Name</MudText>
         @if (!string.IsNullOrWhiteSpace(context.Item.ImportingTerm.AdditionalName)) {
             <MudText Typo="Typo.subtitle1" Style="color: #FFDF9D;">(@context.Item.ImportingTerm.AdditionalName)</MudText>
         }
     </CellTemplate>
-</Column>
+</TemplateColumn>
 
 <!-- Similar -->
-<Column T="ConfirmImportingTerm" Title="Existing Terms" Sortable="@false" CellClass="term-column">
+<TemplateColumn T="ConfirmImportingTerm" Title="Existing Terms" Sortable="@false" CellClass="term-column">
     <CellTemplate>
         @if (context.Item.IsNotInDb) 
         {
@@ -40,28 +40,28 @@
             }
         }
     </CellTemplate>
-</Column>
+</TemplateColumn>
 
 <!-- Category -->
-<Column T="ConfirmImportingTerm" Title="Category" Sortable="false" CellStyle="min-width: 20rem;" >
+<TemplateColumn T="ConfirmImportingTerm" Title="Category" Sortable="false" CellStyle="min-width: 20rem;">
     <CellTemplate>
         <CategorySelector Categories="@_categories"
                           SelectedCategories="@context.Item.Categories" 
                           SelectedCategoriesChanged="@(xs => OnSelectedCategoriesChanged(context.Item.ImportingTerm.Id, xs))"/>
     </CellTemplate>
-</Column>
+</TemplateColumn>
 
 <!-- Description -->
-<Column T="ConfirmImportingTerm" Title="Description" Sortable="false" CellStyle="@BroadestColumnMinWidth">
+<TemplateColumn T="ConfirmImportingTerm" Title="Description" Sortable="false" CellStyle="@BroadestColumnMinWidth">
     <CellTemplate>
         <div>
             <MudMarkdown Value="@context.Item.ImportingTerm.Description" />
         </div>
     </CellTemplate>
-</Column>
+</TemplateColumn>
 
 <!-- Synonyms -->
-<Column T="ConfirmImportingTerm" Title="Synonyms" Sortable="false">
+<TemplateColumn T="ConfirmImportingTerm" Title="Synonyms" Sortable="false">
     <CellTemplate>
         @if (context.Item.ImportingTerm.Synonyms.Any()) 
         {
@@ -78,7 +78,7 @@
             <MudText Typo="Typo.body2" Class="d-inline-block"><i>no synonyms</i>.</MudText>
         }*@
     </CellTemplate>
-</Column>
+</TemplateColumn>
 
 @*<Column T="ConfirmImportingTerm" Sortable="false">
     <CellTemplate>

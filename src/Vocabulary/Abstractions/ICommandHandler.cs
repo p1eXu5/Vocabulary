@@ -9,8 +9,8 @@ public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand> where 
 public interface ICommandHandler<in TCommand, TResponse> : IRequestHandler<TCommand, TResponse> where TCommand : ICommand<TResponse>
 { }
 
-public interface IResultCommandHandler<TCommand, TResponse> : IRequestHandler<TCommand, Result<TResponse>> where TCommand : IResultCommand<TResponse>
+public interface IResultCommandHandler<TCommand, TResponse> : IRequestHandler<TCommand, Result<TResponse, string>> where TCommand : IResultCommand<TResponse>
 { }
 
-public interface IResultCommandHandler<TCommand> : IRequestHandler<TCommand, Result> where TCommand : IResultCommand
+public interface IResultCommandHandler<TCommand> : IRequestHandler<TCommand, Result<Unit, string>> where TCommand : IResultCommand
 { }

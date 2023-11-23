@@ -8,7 +8,7 @@ public interface ICategoryRepository
 {
     Task<ImmutableArray<Category>> GetCategoriesAsync();
 
-    Task<Result<Category>> FindAsync(Guid categoryId);
+    Task<Result<Category, string>> FindAsync(Guid categoryId);
 
-    Task<Result> RemoveAsync(Guid categoryId);
+    Task<Result<Unit, string>> RemoveAsync(Guid categoryId);
 }

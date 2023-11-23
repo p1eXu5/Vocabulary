@@ -6,10 +6,10 @@ namespace Vocabulary.Terms.Ports;
 
 public interface ITermRepository
 {
-    Task<Result<IReadOnlyCollection<ExportingTerm>>> GetTermsAsync(CancellationToken cancellationToken);
+    Task<Result<IReadOnlyCollection<ExportingTerm>, string>> GetTermsAsync(CancellationToken cancellationToken);
 
-    Task<Result<IReadOnlyCollection<TermNames>>> GetTermNamesAsync(CancellationToken cancellationToken);
+    Task<Result<IReadOnlyCollection<TermNames>, string>> GetTermNamesAsync(CancellationToken cancellationToken);
 
-    Task<Result> ImportAsync(IEnumerable<IConfirmedTerm> importingTerms);
-    Task<Result> DeleteAsync(Guid termId);
+    Task<Result<Unit, string>> ImportAsync(IEnumerable<IConfirmedTerm> importingTerms);
+    Task<Result<Unit, string>> DeleteAsync(Guid termId);
 }

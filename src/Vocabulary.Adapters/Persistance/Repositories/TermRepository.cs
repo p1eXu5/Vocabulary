@@ -29,40 +29,40 @@ public class TermRepository : ITermRepository
     }
 
 
-    public async Task<Result<IReadOnlyCollection<TermNames>>> GetTermNamesAsync(CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<TermNames>, string>> GetTermNamesAsync(CancellationToken cancellationToken)
     {
         using VocabularyDbContext dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var termList = await dbContext.Terms.ToListAsync(cancellationToken);
 
-        if (!termList.Any())
+        if (termList.Count == 0)
         {
-            return Result<IReadOnlyCollection<TermNames>>.Failure("Have no terms.");
+            return "Have no terms.".ToError<IReadOnlyCollection<TermNames>>();
         }
 
         IReadOnlyCollection<TermNames> result =
             termList.Select(_mapper.Map<TermNames>).ToImmutableArray();
 
-        return result.ToSuccessResult();
+        return result.ToOkWithStringError();
     }
 
 
-    public async Task<Result<IReadOnlyCollection<ExportingTerm>>> GetTermsAsync(CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<ExportingTerm>, string>> GetTermsAsync(CancellationToken cancellationToken)
     {
         using var dbContext = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var termList = await dbContext.Terms.ToListAsync(cancellationToken);
 
-        if (!termList.Any()) {
-            return Result<IReadOnlyCollection<ExportingTerm>>.Failure("Have no terms.");
+        if (termList.Count == 0) {
+            return "Have no terms.".ToError<IReadOnlyCollection<ExportingTerm>>();
         }
 
         IReadOnlyCollection<ExportingTerm> result =
             termList.Select(_mapper.Map<ExportingTerm>).ToImmutableArray();
 
-        return result.ToSuccessResult();
+        return result.ToOkWithStringError();
     }
 
 
-    public async Task<Result> ImportAsync(IEnumerable<IConfirmedTerm> importingTerms)
+    public async Task<Result<Unit, string>> ImportAsync(IEnumerable<IConfirmedTerm> importingTerms)
     {
         try
         {
@@ -82,16 +82,17 @@ public class TermRepository : ITermRepository
             await dbContext.Terms.AddRangeAsync(terms);
             await dbContext.SaveChangesAsync();
 
-            return Result.Success();
+            return Result.UnitOkWith<string>();
         }
         catch (Exception ex)
         {
-            return Result.Failure("Error on importing terms into database.", ex);
+            _logger.LogError(ex, "Error on importing terms into database.");
+            return "Error on importing terms into database.".ToError<Unit>();
         }
     }
 
 
-    public async Task<Result> DeleteAsync(Guid termId)
+    public async Task<Result<Unit, string>> DeleteAsync(Guid termId)
     {
         using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         DbTerm? dbTerm = await dbContext.Terms.SingleOrDefaultAsync(t => t.Id == termId);
@@ -100,7 +101,7 @@ public class TermRepository : ITermRepository
         {
             if (dbTerm.IsDeleted)
             {
-                return Result.Failure("Term had already been deleted.");
+                return "Term had already been deleted.".ToError<Unit>();
             }
 
             dbTerm.IsDeleted = true;
@@ -108,14 +109,15 @@ public class TermRepository : ITermRepository
             try
             {
                 await dbContext.SaveChangesAsync();
-                return Result.Success();
+                return Result.UnitOkWith<string>();
             }
             catch (Exception ex)
             {
-                return Result.Failure("Error on updating term.", ex);
+                _logger.LogError(ex, "Error on updating term.");
+                return "Error on updating term.".ToError<Unit>();
             }
         }
 
-        return Result.Failure("Term has not been found.");
+        return "Term has not been found.".ToError<Unit>();
     }
 }

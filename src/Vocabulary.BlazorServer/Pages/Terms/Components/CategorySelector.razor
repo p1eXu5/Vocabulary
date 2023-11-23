@@ -9,16 +9,17 @@
 @inject AppState AppState
 
 <div class="d-flex flex-nowrap flex-column justify-center align-stretch">
-    <MudSelect T="@Category" Class="mt-3" 
-               Label="Categories" 
-               MultiSelection="true" 
-               SelectAll="true" SelectAllText="Select all categories" 
-               SelectedValues="@_selectedCategories" SelectedValuesChanged="@OnSelectedCategoriesChanged"
-               AnchorOrigin="Origin.BottomCenter" 
-               MaxHeight="600" @bind-Text="@_value" 
+    <MudSelect T="Category"
+               Margin="@Margin.Normal"
+               Label="Categories"
+               MultiSelection="true"
+               SelectAll="true" SelectAllText="Select all categories"
+               @bind-SelectedValues:get="@_selectedCategories"
+               @bind-SelectedValues:set="@OnSelectedCategoriesChanged"
+               AnchorOrigin="Origin.BottomCenter"
+               MaxHeight="600" @bind-Text="@_value"
                AutoFocus="@false"
-               Disabled="@_categoryDialogIsShown"
-               >
+               Disabled="@_categoryDialogIsShown">
         @foreach (var category in Categories.OrderBy(c => c.Name))
         {
                 <MudSelectItem T="Category" Value="@category">
@@ -42,10 +43,10 @@
 
 @code {
     [Parameter, EditorRequired]
-    public IEnumerable<Category> SelectedCategories { private get; set; } = Array.Empty<Category>();
+    public IEnumerable<Category> SelectedCategories { get; set; } = Array.Empty<Category>();
 
     [Parameter, EditorRequired]
-    public ImmutableArray<Category> Categories { private get; set; } = ImmutableArray<Category>.Empty;
+    public ImmutableArray<Category> Categories { get; set; } = ImmutableArray<Category>.Empty;
 
     [Parameter]
     public EventCallback<IEnumerable<Category>> SelectedCategoriesChanged { get; set; }

@@ -10,8 +10,8 @@ using Vocabulary.Terms.Ports;
 
 namespace Vocabulary.Adapters.Markdig;
 
-using ParsingResult = Result<IReadOnlyList<ImportingTerm>>;
-using ParsingProcessResult = Result<MarkdownDocument>;
+using ParsingResult = Result<IReadOnlyList<ImportingTerm>, string>;
+using ParsingProcessResult = Result<MarkdownDocument, string>;
 
 public class MarkdigParser : IMarkdownParser
 {
@@ -32,7 +32,7 @@ public class MarkdigParser : IMarkdownParser
         ICollection<ImportingTerm> terms = Array.Empty<ImportingTerm>();
 
         if (document.Count < 2) {
-            return ParsingResult.Failure("Wrong content");
+            return "Wrong content".ToError<IReadOnlyList<ImportingTerm>>();
         }
 
         return
@@ -46,12 +46,12 @@ public class MarkdigParser : IMarkdownParser
     private static ParsingProcessResult CheckHeaderLine(MarkdownDocument document)
     {
         if (document[0] is HeadingBlock hb && hb.Inline?.FirstChild?.ToString() == "Глоссарий") {
-            return document.ToSuccessResult();
+            return document.ToOkWithStringError();
         }
-        return ParsingProcessResult.Failure("Header is not valid.");
+        return "Header is not valid.".ToError<MarkdownDocument>();
     }
 
-    private static Result<Table> CheckTableHeader(string fileContent, MarkdownDocument document, int column, string header)
+    private static Result<Table, string> CheckTableHeader(string fileContent, MarkdownDocument document, int column, string header)
     {
         if (document[1] is Table table 
             && table.Count >= 2                         // it's two or more rows
@@ -62,22 +62,22 @@ public class MarkdigParser : IMarkdownParser
         ) {
             return 
                 fileContent[cell.Span.Start..cell.Span.End].Trim().Equals(header, StringComparison.Ordinal)
-                    ? table.ToSuccessResult()
-                    : table.ToFailedResult();
+                    ? table.ToOkWithStringError()
+                    : "File content item is not equal to header".ToError<Table>();
         }
-        return Result<Table>.Failure($"Table does not contain column \"{header}\" ({column}).");
+        return $"Table does not contain column \"{header}\" ({column}).".ToError<Table>();
     }
 
-    private static IEnumerable<Result<ImportingTerm>> CollectTerms(string fileContent, Table table)
+    private static IEnumerable<Result<ImportingTerm, Unit>> CollectTerms(string fileContent, Table table)
     {
-        Result<string> ReadCellData(TableRow row, int column)
+        Result<string, Unit> ReadCellData(TableRow row, int column)
         {
             if (row[column] is TableCell cell && !cell.Span.IsEmpty)
             {
-                return fileContent[cell.Span.Start .. cell.Span.End].Trim().ToSuccessResult();
+                return fileContent[cell.Span.Start .. cell.Span.End].Trim().ToOk();
             }
 
-            return Result<string>.Failure();
+            return Result.UnitErrorWith<string>();
         }
 
 

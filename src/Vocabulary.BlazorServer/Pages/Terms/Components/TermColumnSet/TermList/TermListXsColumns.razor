@@ -6,7 +6,7 @@
 @*<SelectColumn T="Term" />*@
 
 <!-- Term/Description/Validation/Sequence -->
-<Column T="Term" Title="Term" Sortable="false" CellClass="">
+<TemplateColumn T="Term" Title="Term" Sortable="false" CellClass="">
     <CellTemplate>
         <!-- Term -->
         <MudText Typo="Typo.subtitle1" Class="mr-1" Style="display: inline;">@context.Item.Sequence.</MudText>
@@ -79,4 +79,4 @@
                   OnRemoveRequested="@(() => OnRemoveTerm(context.Item.Id))"
                   />
     </CellTemplate>
-</Column>
+</TemplateColumn>

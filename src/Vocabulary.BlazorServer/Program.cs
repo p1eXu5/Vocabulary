@@ -20,7 +20,10 @@ builder.Services.AddSingleton<AppState>();
 builder.Services.AddMudServices();
 builder.Services.AddMudMarkdownServices();
 
-builder.Services.AddMediatR(typeof(CheckTermsCommand));
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblyContaining(typeof(CheckTermsCommand));
+});
 
 builder.Services.AddAutoMapper((serviceProvider, cfg) => {
     var logger = serviceProvider.GetRequiredService<ILogger<AutoProfile>>();

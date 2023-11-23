@@ -19,7 +19,7 @@ public class CategoryRepository : ICategoryRepository
         this._mapper = mapper;
     }
 
-    public Task<Result<Category>> FindAsync(Guid categoryId)
+    public Task<Result<Category, string>> FindAsync(Guid categoryId)
     {
         return InternalFindAsync(categoryId).TaskMap(r => r.Map(_mapper.Map<Category>));
     }
@@ -32,7 +32,7 @@ public class CategoryRepository : ICategoryRepository
         return dbCategories.Select(_mapper.Map<Category>).ToImmutableArray();
     }
 
-    public async Task<Result> RemoveAsync(Guid categoryId)
+    public async Task<Result<Unit, string>> RemoveAsync(Guid categoryId)
     {
         using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         Models.Category? category = await dbContext.Categories.Include(c => c.Terms).SingleOrDefaultAsync(c => c.Id == categoryId);
@@ -43,25 +43,25 @@ public class CategoryRepository : ICategoryRepository
             {
                 dbContext.Categories.Remove(category);
                 await dbContext.SaveChangesAsync();
-                return Result.Success();
+                return Result.UnitOkWith<string>();
             }
 
-            return Result.Failure("Category has terms.");
+            return "Category has terms.".ToError<Unit>();
         }
 
-        return Result.Failure("Category is not in db.");
+        return "Category is not in db.".ToError<Unit>();
     }
 
-    private async Task<Result<Models.Category>> InternalFindAsync(Guid categoryId)
+    private async Task<Result<Models.Category, string>> InternalFindAsync(Guid categoryId)
     {
         using var dbContext = await _dbContextFactory.CreateDbContextAsync();
         Models.Category? category = await dbContext.Categories.FindAsync(categoryId);
 
         if (category is not null)
         {
-            return category.ToSuccessResult();
+            return category.ToOkWithStringError();
         }
 
-        return Result<Models.Category>.Failure($"Could not find Category by id {categoryId}");
+        return $"Could not find Category by id {categoryId}".ToError<Models.Category>();
     }
 }

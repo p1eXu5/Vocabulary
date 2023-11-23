@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using MudBlazor;
 using p1eXu5.Result;
+using p1eXu5.Result.Extensions;
 using System.Collections.Immutable;
 using Vocabulary.Categories.DataContracts;
 using Vocabulary.Terms.DataContracts;
@@ -98,9 +99,9 @@ public partial class ConfirmTermDataGrid
 
     private async Task StoreSelectedTerms()
     {
-        Result result = await TermRepository.ImportAsync(_confirmImportingTerms.Where(t => t.IsNotInDb).ToArray());
+        var result = await TermRepository.ImportAsync(_confirmImportingTerms.Where(t => t.IsNotInDb).ToArray());
         
-        if (result)
+        if (result.IsOk())
         {
             NavigationManager.NavigateTo("/", true);
             return;
