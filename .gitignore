@@ -459,3 +459,4 @@ $RECYCLE.BIN/
 /src/Vocabulary.BlazorServer/Development/unsafe_uploads
 
 docs/
+/src/Vocabulary.BlazorServer/Properties/launchSettings.json
