@@ -5,5 +5,5 @@ namespace Vocabulary.Terms.Ports;
 
 public interface IMarkdownParser
 {
-    ValueTask<Result<IReadOnlyList<ImportingTerm>>> ParseAsync(string fileContent);
+    ValueTask<Result<IReadOnlyList<ImportingTerm>, string>> ParseAsync(string fileContent);
 }

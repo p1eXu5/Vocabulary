@@ -3,4 +3,4 @@ using Techno.Mir.Upay.Abstractions;
 
 namespace Vocabulary.Descriptions;
 
-public record CheckTermsCommand(Guid TermId) : ICommand<Result<string>>;
+public record CheckTermsCommand(Guid TermId) : ICommand<Result<string, string>>;

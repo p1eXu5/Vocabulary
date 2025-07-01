@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using p1eXu5.Result.Extensions;
 using System.Collections;
 using Vocabulary.Adapters.Markdig;
 using Vocabulary.Terms.DataContracts;
@@ -18,9 +19,9 @@ public class MarkdigParserTests
 
         // Assert:
         TestContext.WriteLine(res.ToString());
-        res.Succeeded.Should().BeTrue();
-        res.SuccessContext.Should().HaveCount(2);
-        AssertTerms(res.SuccessContext[0], terms[0]);
+        res.IsOk().Should().BeTrue();
+        res.SuccessContext().Should().HaveCount(2);
+        AssertTerms(res.SuccessContext()[0], terms[0]);
     }
 
     private void AssertTerms(ImportingTerm actual, ImportingTerm expected)

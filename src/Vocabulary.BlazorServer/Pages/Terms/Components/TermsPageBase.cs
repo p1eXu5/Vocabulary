@@ -1,35 +1,39 @@
-﻿using MudBlazor.Services;
+﻿using MudBlazor;
+using MudBlazor.Services;
 
 namespace Vocabulary.BlazorServer.Pages.Terms.Components;
 
 public class TermsPageBase : ComponentBase
 {
     [Inject]
-    private IResizeService ResizeService { get; set; } = default!;
+    private IBrowserViewportService ResizeService { get; set; } = default!;
 
     private const int DRAWER_WIDTH = 240;
-    private Guid _subscriptionId;
+    private Guid _subscriptionId = Guid.NewGuid();
 
-    protected Breakponts Breakpoints = Breakponts.Lg;
+    protected BreakPt Breakpoints = BreakPt.Lg;
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _subscriptionId = await ResizeService.Subscribe((size) =>
-            {
-                if (TrySetBreakpoints(size))
+            await ResizeService.SubscribeAsync(
+                _subscriptionId, 
+                (size) =>
                 {
-                    InvokeAsync(StateHasChanged);
-                }
-            }, new ResizeOptions
-            {
-                ReportRate = 50,
-                NotifyOnBreakpointOnly = false,
-            });
+                    if (TrySetBreakpoints(size.BrowserWindowSize))
+                    {
+                        InvokeAsync(StateHasChanged);
+                    }
+                }, 
+                new ResizeOptions
+                {
+                    ReportRate = 50,
+                    NotifyOnBreakpointOnly = false,
+                });
 
-            BrowserWindowSize size = await ResizeService.GetBrowserWindowSize();
+            BrowserWindowSize size = await ResizeService.GetCurrentBrowserWindowSizeAsync();
             if (TrySetBreakpoints(size))
             {
                 StateHasChanged();
@@ -47,33 +51,33 @@ public class TermsPageBase : ComponentBase
     {
         if (size.Width > 1580 + DRAWER_WIDTH)
         {
-            if (Breakpoints != Breakponts.Lg)
+            if (Breakpoints != BreakPt.Lg)
             {
-                Breakpoints = Breakponts.Lg;
+                Breakpoints = BreakPt.Lg;
                 return true;
             }
         }
         else if (size.Width > 1401 + DRAWER_WIDTH)
         {
-            if (Breakpoints != Breakponts.Md)
+            if (Breakpoints != BreakPt.Md)
             {
-                Breakpoints = Breakponts.Md;
+                Breakpoints = BreakPt.Md;
                 return true;
             }
         }
         else if (size.Width > 920)
         {
-            if (Breakpoints != Breakponts.Sm)
+            if (Breakpoints != BreakPt.Sm)
             {
-                Breakpoints = Breakponts.Sm;
+                Breakpoints = BreakPt.Sm;
                 return true;
             }
         }
         else
         {
-            if (Breakpoints != Breakponts.Xs)
+            if (Breakpoints != BreakPt.Xs)
             {
-                Breakpoints = Breakponts.Xs;
+                Breakpoints = BreakPt.Xs;
                 return true;
             }
         }
@@ -81,9 +85,9 @@ public class TermsPageBase : ComponentBase
         return false;
     }
 
-    public async ValueTask DisposeAsync() => await ResizeService.Unsubscribe(_subscriptionId);
+    public async ValueTask DisposeAsync() => await ResizeService.UnsubscribeAsync(_subscriptionId);
 
-    protected enum Breakponts
+    protected enum BreakPt
     {
         Lg,
         Md,

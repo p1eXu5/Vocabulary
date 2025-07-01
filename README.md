@@ -3,8 +3,13 @@ Vocabulary
 
 Simple web application for working with domain vocabulary, for creating and managing terms.
 
-Deploy in Docker:
+## Installation
 
-  - add `.env` file in root of repository
-  - add variable `DB_PATH`. For example: `DB_PATH=/d/db/Vocabulary/`
-  - run start-vocabulary.bat
+1. Create `.env` file:
+
+| Var | Is Required | Description |
+| --- | ----------- | ----------- |
+| DB_PATH | Yes | Path to the database directory. |
+| LOCAL_IP_WITH_COLON | No | Local IP address with trailing colon |
+
+2. Run [`start-vocabulary.bat`](.\start-vocabulary.bat).

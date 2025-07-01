@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using System.Collections.Immutable;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using p1eXu5.Result;
 using p1eXu5.Result.Extensions;
-using System.Collections.Immutable;
 using Techno.Mir.Upay.Abstractions;
 using Vocabulary.Terms.Abstractions;
 using Vocabulary.Terms.DataContracts;
@@ -10,10 +10,6 @@ using Vocabulary.Terms.Enums;
 using Vocabulary.Terms.Ports;
 
 namespace Vocabulary.Terms;
-
-using ConfirmResult = Result<ImmutableArray<ConfirmImportingTerm>>;
-
-
 /// <summary>
 /// 
 /// </summary>
@@ -33,7 +29,7 @@ public class ImportTermsCommandHandler : IResultCommandHandler<ImportTermsComman
     private readonly ILogger<ImportTermsCommandHandler> _logger;
     private readonly TermNamesComparer _termNamesComparer;
 
-    public ImportTermsCommandHandler( IMarkdownParser markdownParser,
+    public ImportTermsCommandHandler(IMarkdownParser markdownParser,
                                       ITermRepository termRepository,
                                       IMemoryCache memoryCache,
                                       ILogger<ImportTermsCommandHandler> logger)
@@ -46,9 +42,9 @@ public class ImportTermsCommandHandler : IResultCommandHandler<ImportTermsComman
         _termNamesComparer = new();
     }
 
-    public async Task<Result<string>> Handle(ImportTermsCommand request, CancellationToken cancellationToken)
+    public Task<Result<string, string>> Handle(ImportTermsCommand request, CancellationToken cancellationToken)
     {
-        var contentTask = 
+        Task<Result<IReadOnlyList<ImportingTerm>, string>> contentTask =
             File.ReadAllTextAsync(request.fileName, cancellationToken)
                 .ContinueWith(t =>
                 {
@@ -60,36 +56,38 @@ public class ImportTermsCommandHandler : IResultCommandHandler<ImportTermsComman
                 }, cancellationToken)
                 .Unwrap();
 
-        var getTermNamesTask = _termRepository.GetTermNamesAsync(cancellationToken);
+        Task<Result<IReadOnlyCollection<TermNames>, string>> getTermNamesTask = _termRepository.GetTermNamesAsync(cancellationToken);
 
         try
         {
-            await Task.WhenAll(contentTask, getTermNamesTask);
+            Task.WaitAll([contentTask, getTermNamesTask], cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
-            return Result<string>.Failure(ex);
+            return Task.FromResult<Result<string, string>>(
+                new Result<string, string>.Error("Failed to handle import terms command."));
         }
 
-        if (!contentTask.Result.TryGetSucceededContext(out IReadOnlyList<ImportingTerm> importingTerms))
+        if (!contentTask.Result.TryGetSuccessContext(out IReadOnlyList<ImportingTerm> importingTerms))
         {
-            return Result<string>.Failure(contentTask.Result);
+            return Task.FromResult<Result<string, string>>(
+                new Result<string, string>.Error($"Failed to parse markdown file {request.fileName}."));
         }
 
         ImmutableArray<ConfirmImportingTerm> confirmImportingTerms =
-            !getTermNamesTask.Result.TryGetSucceededContext(out IReadOnlyCollection<TermNames> termNames)
+            !getTermNamesTask.Result.TryGetSuccessContext(out IReadOnlyCollection<TermNames> termNames)
                 ? importingTerms.OrderBy(it => it.Name).Select(it => new ConfirmImportingTerm(it)).ToImmutableArray()
                 : CompareWithExisting(importingTerms, termNames, request.ComparingNames);
 
         string key = Path.GetFileNameWithoutExtension(request.fileName);
         _memoryCache.Set(key, confirmImportingTerms, TimeSpan.FromMinutes(60));
 
-        return key.ToSuccessResult();
+        return Task.FromResult(key.ToOkWithStringError());
     }
 
 
-    private ImmutableArray<ConfirmImportingTerm> CompareWithExisting( IReadOnlyList<ImportingTerm> importingTerms,
+    private ImmutableArray<ConfirmImportingTerm> CompareWithExisting(IReadOnlyList<ImportingTerm> importingTerms,
                                                                       IReadOnlyCollection<TermNames> termNames,
                                                                       ComparingNames comparingNames)
     {

@@ -152,7 +152,7 @@ public partial class TermForm : IAsyncDisposable
     {
         var result = await ShowCategoryDialog();
 
-        if (!result.Cancelled && Guid.TryParse(result.Data.ToString(), out Guid categoryId)) {
+        if (!result.Canceled && Guid.TryParse(result.Data.ToString(), out Guid categoryId)) {
             var newCategory = await _dbContext.Categories.SingleOrDefaultAsync(c => c.Id == categoryId);
             if (newCategory is not null) {
                 _term.Categories.Add(newCategory);
@@ -169,7 +169,7 @@ public partial class TermForm : IAsyncDisposable
         var result = await ShowCategoryDialog(parameters);
         _dialogIsShown = false;
 
-        if (!result.Cancelled) {
+        if (!result.Canceled) {
             var termCategoru = _term.Categories.FirstOrDefault(c => c.Id == categoryId);
             if (termCategoru is not null) {
                 _term.Categories.Remove(termCategoru);

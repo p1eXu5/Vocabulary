@@ -6,9 +6,9 @@ services:
             context: .
             dockerfile: "./src/Vocabulary.BlazorServer/Dockerfile"
             network: host
-        restart: "unless-stopped"
+        restart: unless-stopped
         ports:
-            - "${LOCAL_IP}:39577:80"
+            - ${LOCAL_IP_WITH_COLON}39577:80
         container_name: vocabulary
         environment:
             - ASPNETCORE_ENVIRONMENT=Production

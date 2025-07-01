@@ -22,7 +22,7 @@
         <MudTd DataLabel="Description">@context!.ResourceDescription</MudTd>
         <MudTd DataLabel="Href">@context!.Href</MudTd>
         <MudTd>
-            <MudIconButton Icon="@Icons.Filled.DeleteForever" OnClick="@(async () => await RaiseDeleting(context!.Id))"/>
+            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async () => await RaiseDeleting(context!.Id))"/>
         </MudTd>
     </RowTemplate>
     <RowEditingTemplate>

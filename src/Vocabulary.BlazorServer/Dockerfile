@@ -6,17 +6,25 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+
+COPY ["./packages/.", "/local_nugets"]
+
 WORKDIR /src
-COPY ["src/Vocabulary.BlazorServer/Vocabulary.BlazorServer.csproj", "src/Vocabulary.BlazorServer/"]
-COPY ["src/Vocabulary.Adapters/Vocabulary.Adapters.csproj", "src/Vocabulary.Adapters/"]
+
 COPY ["src/Vocabulary/Vocabulary.csproj", "src/Vocabulary/"]
-RUN dotnet restore "src/Vocabulary.BlazorServer/Vocabulary.BlazorServer.csproj"
-COPY . .
-WORKDIR "/src/src/Vocabulary.BlazorServer"
-RUN dotnet build "Vocabulary.BlazorServer.csproj" -c Release -o /app/build
+COPY ["src/Vocabulary.Adapters/Vocabulary.Adapters.csproj", "src/Vocabulary.Adapters/"]
+COPY ["src/Vocabulary.BlazorServer/Vocabulary.BlazorServer.csproj", "src/Vocabulary.BlazorServer/"]
+
+RUN dotnet restore -s /local_nugets "src/Vocabulary.BlazorServer/Vocabulary.BlazorServer.csproj"
+
+COPY ["src/Vocabulary/.", "src/Vocabulary/"]
+COPY ["src/Vocabulary.Adapters/.", "src/Vocabulary.Adapters/"]
+COPY ["src/Vocabulary.BlazorServer/.", "src/Vocabulary.BlazorServer/"]
+
+RUN dotnet build "src/Vocabulary.BlazorServer/Vocabulary.BlazorServer.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Vocabulary.BlazorServer.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "src/Vocabulary.BlazorServer/Vocabulary.BlazorServer.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app

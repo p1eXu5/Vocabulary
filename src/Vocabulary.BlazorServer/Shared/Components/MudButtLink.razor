@@ -6,9 +6,9 @@
 </a>
 
 @code {
-    private Dictionary<string, object> Attributes
+    private Dictionary<string, object?> Attributes
     {
-        get => Disabled ? UserAttributes : new Dictionary<string, object>(UserAttributes)
+        get => Disabled ? UserAttributes : new Dictionary<string, object?>(UserAttributes)
         {
             { "href", Href },
             { "target", Target }
@@ -22,9 +22,6 @@
     [Parameter]
     [Category(CategoryTypes.Link.Behavior)]
     public bool StopPropagation { get; set; }
-
-    [Parameter]
-    public EventCallback OnClick { get; set; }
 
     private Task RaiseOnClick()
         => OnClick.InvokeAsync();

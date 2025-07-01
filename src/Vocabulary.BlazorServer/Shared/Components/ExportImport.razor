@@ -1,5 +1,7 @@
 ﻿@using Vocabulary.Terms
 @using Vocabulary.Terms.Enums
+@using p1eXu5.Result
+@using p1eXu5.Result.Extensions
 
 @inherits ComponentBase
 @implements IAsyncDisposable
@@ -16,14 +18,14 @@
     <MudButton HtmlTag="label"
                Variant="Variant.Outlined"
                Color="Color.Secondary"
-               StartIcon="@Icons.Filled.CloudUpload"
+               StartIcon="@Icons.Material.Filled.CloudUpload"
                Size="Size.Small"
                for="fileInput">
         Import Terms
     </MudButton>
     <MudButton Variant="Variant.Outlined"
                 Color="Color.Secondary"
-                StartIcon="@Icons.Filled.CloudDownload"
+                StartIcon="@Icons.Material.Filled.CloudDownload"
                 Size="Size.Small"
                 OnClick="ExportTerms"
                 >
@@ -82,9 +84,9 @@
 
             await fileStream.DisposeAsync();
 
-            var commandResult = await Mediator.Send(new ImportTermsCommand(path, ComparingNames.CombinedMainOrAdditional));
+            Result<string, string> commandResult = await Mediator.Send(new ImportTermsCommand(path, ComparingNames.CombinedMainOrAdditional));
 
-            if (commandResult.TryGetSucceededContext(out string? confirmImportingTerms))
+            if (commandResult.TryGetSuccessContext(out string? confirmImportingTerms))
             {
                 // open import result dialog
                 //NavigationManager.NavigateTo("confirm-import/" + confirmImportingTerms);
@@ -95,7 +97,7 @@
             }
             else
             {
-                Snackbar.Add(commandResult.FailedContext, Severity.Warning);
+                Snackbar.Add(commandResult.FailedContext(), Severity.Warning);
             }
         }
         catch (Exception ex)
@@ -115,7 +117,7 @@
     {
         var uriResult = await Mediator.Send(new ExportTermsCommand());
 
-        if (uriResult.TryGetSucceededContext(out var stream)) 
+        if (uriResult.TryGetSuccessContext(out var stream)) 
         {
             var fileName = "vocabulary.md";
             using var streamRef = new DotNetStreamReference(stream: stream);

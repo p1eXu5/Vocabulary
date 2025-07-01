@@ -11,22 +11,13 @@ namespace Vocabulary.Terms;
 public record ExportTermsCommand : IResultCommand<MemoryStream>;
 
 
-public class ExportTermsCommandHandler : IResultCommandHandler<ExportTermsCommand, MemoryStream>
+public class ExportTermsCommandHandler(ITermRepository termRepository, ILogger<ExportTermsCommandHandler> logger) : IResultCommandHandler<ExportTermsCommand, MemoryStream>
 {
-    private readonly ITermRepository _termRepository;
-    private readonly ILogger<ExportTermsCommandHandler> _logger;
-
-    public ExportTermsCommandHandler(ITermRepository termRepository, ILogger<ExportTermsCommandHandler> logger)
+    public async Task<Result<MemoryStream, string>> Handle(ExportTermsCommand request, CancellationToken cancellationToken)
     {
-        _termRepository = termRepository;
-        _logger = logger;
-    }
+        var termsResult = await termRepository.GetTermsAsync(cancellationToken);
 
-    public async Task<Result<MemoryStream>> Handle(ExportTermsCommand request, CancellationToken cancellationToken)
-    {
-        var termsResult = await _termRepository.GetTermsAsync(cancellationToken);
-
-        if (termsResult.TryGetSucceededContext(out var terms))
+        if (termsResult.TryGetSuccessContext(out var terms))
         {
             try
             {
@@ -39,18 +30,18 @@ public class ExportTermsCommandHandler : IResultCommandHandler<ExportTermsComman
                     await sw.WriteLineAsync(term.ToString());
                 }
 
-                await sw.FlushAsync();
+                await sw.FlushAsync(cancellationToken);
                 memoryStream.Position = 0;
 
-                return memoryStream.ToSuccessResult();
+                return memoryStream.ToOkWithStringError();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error on GenerateTermMarkdownCommand.");
-                return Result<MemoryStream>.Failure(ex);
+                logger.LogError(ex, "Error on GenerateTermMarkdownCommand.");
+                return new Result<MemoryStream, string>.Error("Failed to export terms.");
             }
         }
 
-        return Result<MemoryStream>.Failure(termsResult.FailedContext);
+        return new Result<MemoryStream, string>.Error(termsResult.FailedContext());
     }
 }

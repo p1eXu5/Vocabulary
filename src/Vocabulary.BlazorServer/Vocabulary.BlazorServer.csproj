@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <!--<RazorLanguageVersion>7</RazorLanguageVersion>-->
@@ -10,8 +10,8 @@
     <PackageProjectUrl>https://github.com/p1eXu5/Vocabulary</PackageProjectUrl>
     <RepositoryUrl>https://github.com/p1eXu5/Vocabulary</RepositoryUrl>
     <PackageTags>vocabulary, uml, specifications, technical documentation</PackageTags>
-    <AssemblyVersion>1.1.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
     <UserSecretsId>bf60667f-d1da-431e-8d06-3975bc91ef40</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>

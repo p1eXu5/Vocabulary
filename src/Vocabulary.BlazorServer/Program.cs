@@ -22,7 +22,7 @@ builder.Services.AddMudMarkdownServices();
 
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssemblyContaining(typeof(CheckTermsCommand));
+    cfg.RegisterServicesFromAssemblyContaining<CheckTermsCommand>();
 });
 
 builder.Services.AddAutoMapper((serviceProvider, cfg) => {

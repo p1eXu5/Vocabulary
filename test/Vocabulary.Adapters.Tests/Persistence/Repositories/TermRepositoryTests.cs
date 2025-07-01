@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using p1eXu5.Result;
+using p1eXu5.Result.Extensions;
 using Vocabulary.Adapters.Persistance;
 using Vocabulary.Adapters.Persistance.Repositories;
 using Vocabulary.BlazorServer.Tests.Factories;
@@ -33,10 +34,10 @@ public class TermRepositoryTests : MapperTestsBase
         var importingTerms = AutoFaker.Generate<TestConfirmedTerm>(5);
 
         // Action:
-        Result result = await repo.ImportAsync(importingTerms);
+        var result = await repo.ImportAsync(importingTerms);
 
         // Assert:
-        result.Succeeded.Should().BeTrue(" is failed:\n\t"+ result.ToString());
+        result.IsOk().Should().BeTrue(" is failed:\n\t"+ result.ToString());
 
         dbContext = new VocabularyDbContext(option);
 

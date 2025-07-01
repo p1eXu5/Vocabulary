@@ -54,7 +54,7 @@ public partial class ConfirmTermDataGrid
 
         var searchItems = _searchString?.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
 
-        if (searchItems?.Any() != true)
+        if (searchItems is null || searchItems.Length == 0)
         {
             return true;
         }

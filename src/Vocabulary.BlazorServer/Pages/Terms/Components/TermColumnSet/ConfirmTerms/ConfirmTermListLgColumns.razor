@@ -2,11 +2,11 @@
 
 @inherits ConfirmTermListActions
 
-<PropertyColumn T="ConfirmImportingTerm" TProperty="bool" Title="" SortBy="@(term => term.IsNotInDb)" >
+<TemplateColumn T="ConfirmImportingTerm" Title="" SortBy="@(term => term.IsNotInDb)" >
     <CellTemplate>
         <MudCheckBox T="bool" Checked="@context.Item.IsNotInDb" CheckedChanged="@(_ => OnIsNotInDbChanged(context.Item.ImportingTerm.Id))"></MudCheckBox>
     </CellTemplate>
-</PropertyColumn>
+</TemplateColumn>
 
 <!-- Name -->
 <TemplateColumn T="ConfirmImportingTerm" Title="Term" SortBy="@(term => term.ImportingTerm.Name)" CellClass="term-column">

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using p1eXu5.Result.Extensions;
 using Quartz.Util;
 using Vocabulary.Adapters.Persistance;
 using Vocabulary.Adapters.Persistance.Models;
@@ -51,7 +52,7 @@ public partial class TermDataGrid
 
         var searchItems = _searchString?.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
 
-        if (searchItems?.Any() != true)
+        if (searchItems is null || searchItems.Length == 0)
         {
             return true;
         }
@@ -174,7 +175,7 @@ public partial class TermDataGrid
     {
         var res = await Mediator.Send(new CheckTermsCommand(termId));
 
-        if (res.TryGetSucceededContext(out var newDescription))
+        if (res.TryGetSuccessContext(out var newDescription))
         {
             var term = _terms.SingleOrDefault(t => t.Id == termId);
             if (term is not null)

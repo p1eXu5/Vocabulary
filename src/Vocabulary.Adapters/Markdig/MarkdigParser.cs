@@ -25,7 +25,7 @@ public class MarkdigParser : IMarkdownParser
         return new ValueTask<ParsingResult>(Parse(fileContent));
     }
 
-    private static ParsingResult Parse(string fileContent)
+    private static Result<IReadOnlyList<ImportingTerm>, string> Parse(string fileContent)
     {
         MarkdownDocument document = MarkdownParser.Parse(fileContent, new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
@@ -39,11 +39,16 @@ public class MarkdigParser : IMarkdownParser
             CheckHeaderLine(document)
                 .Bind(md => CheckTableHeader(fileContent, md, 0, "Термин").Map(_ => md))
                 .Bind(md => CheckTableHeader(fileContent, md, 1, "Определение"))
-                .Bind(table => CollectTerms(fileContent, table).ToList().TraverseA(id => id).result.Map(r => (IReadOnlyList<ImportingTerm>)r.ToList()));
+                .Bind(table => CollectTerms(fileContent, table)
+                    .ToList()
+                    .TraverseA(id => id)
+                    .result
+                    .Map(r => (IReadOnlyList<ImportingTerm>)r.ToList())
+                );
 
     }
 
-    private static ParsingProcessResult CheckHeaderLine(MarkdownDocument document)
+    private static Result<MarkdownDocument, string> CheckHeaderLine(MarkdownDocument document)
     {
         if (document[0] is HeadingBlock hb && hb.Inline?.FirstChild?.ToString() == "Глоссарий") {
             return document.ToOkWithStringError();
@@ -68,16 +73,16 @@ public class MarkdigParser : IMarkdownParser
         return $"Table does not contain column \"{header}\" ({column}).".ToError<Table>();
     }
 
-    private static IEnumerable<Result<ImportingTerm, Unit>> CollectTerms(string fileContent, Table table)
+    private static IEnumerable<Result<ImportingTerm, string>> CollectTerms(string fileContent, Table table)
     {
-        Result<string, Unit> ReadCellData(TableRow row, int column)
+        Result<string, string> ReadCellData(TableRow row, int column)
         {
             if (row[column] is TableCell cell && !cell.Span.IsEmpty)
             {
-                return fileContent[cell.Span.Start .. cell.Span.End].Trim().ToOk();
+                return fileContent[cell.Span.Start .. cell.Span.End].Trim().ToOkWithStringError();
             }
 
-            return Result.UnitErrorWith<string>();
+            return new Result<string, string>.Error($"Failed to read cell data in row column: {column}.");
         }
 
 
@@ -88,7 +93,8 @@ public class MarkdigParser : IMarkdownParser
                 yield return
                     ReadCellData(row, 0)
                         .Map(GetTermNames)
-                        .Bind(term => ReadCellData(row, 1).Map(descriptions => term with { Description = descriptions}));
+                        .Bind(term => ReadCellData(row, 1).Map(descriptions => term with { Description = descriptions}))
+                        .MapError(err => $"{err} Row: {i}.");
             }
         }
 

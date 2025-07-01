@@ -26,8 +26,8 @@
                     <div class="d-flex">
                         @category.Name
                         <MudSpacer />
-                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Outlined.Edit"  @onclick="@(async _ => await EditCategory(category.Id))" />
-                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Outlined.DeleteForever"  @onclick="@(async _ => await DeleteCategory(category.Id))" />
+                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.Edit"  @onclick="@(async _ => await EditCategory(category.Id))" />
+                        <MudIconButton Size="@Size.Medium" Icon="@Icons.Material.Outlined.DeleteForever"  @onclick="@(async _ => await DeleteCategory(category.Id))" />
                     </div>
                 </MudSelectItem>
         }
@@ -73,7 +73,7 @@
     {
         var result = await ShowCategoryDialog();
 
-        if ( !result.Cancelled 
+        if ( !result.Canceled 
              && Guid.TryParse(result.Data.ToString(), out Guid categoryId) )
         {
             (await CategoryRepository.FindAsync(categoryId))
@@ -93,7 +93,7 @@
         var parameters = new DialogParameters { ["CategoryId"] = categoryId };
         var result = await ShowCategoryDialog(parameters);
 
-        if (!result.Cancelled) 
+        if (!result.Canceled) 
         {
             (await CategoryRepository.FindAsync(categoryId))
                 .Iter(newCategory => 
