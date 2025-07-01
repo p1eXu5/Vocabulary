@@ -4,7 +4,7 @@
 
 @*<SelectColumn T="Term" />*@
 
-<MudColumn T="Term" Field="Sequence" Title="#" Sortable="true" Filterable="false" CellClass="sequence-column" />
+<PropertyColumn T="Term" TProperty="int" Property="x => x.Sequence" Title="#" Sortable="true" Filterable="false" CellClass="sequence-column" />
 
 <!-- Name -->
 <TemplateColumn T="Term" Title="Term" SortBy="@(term => term.Name)" CellClass="term-column">

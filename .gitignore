@@ -460,3 +460,6 @@ $RECYCLE.BIN/
 
 docs/
 /src/Vocabulary.BlazorServer/Properties/launchSettings.json
+/src/Vocabulary.BlazorServer/test.db
+/src/Vocabulary.BlazorServer/test.db-shm
+/src/Vocabulary.BlazorServer/test.db-wal
