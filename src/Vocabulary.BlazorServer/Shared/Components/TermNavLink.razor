@@ -1,10 +1,27 @@
 ﻿@using Vocabulary.Adapters.Persistance.Models
 
+<style>
+    .out-trimmed-text {
+        white-space: nowrap; /* Prevent text from wrapping to the next line */
+        overflow: hidden; /* Hide the overflowing text */
+        text-overflow: ellipsis; /* Show ellipsis (...) when text is truncated */
+        width: calc(var(--mud-drawer-width-left) - 58px);
+        display: block;
+    }
+    .trimmed-text {
+        white-space: nowrap; /* Prevent text from wrapping to the next line */
+        overflow: hidden; /* Hide the overflowing text */
+        text-overflow: ellipsis; /* Show ellipsis (...) when text is truncated */
+        width: calc(var(--mud-drawer-width-left) - 70px);
+        display: block;
+    }
+</style>
+
 <MudNavLink Href="@Href" Match="NavLinkMatch.Prefix">
-    <MudText Typo="Typo.subtitle1" >@Term.Name</MudText>
+    <MudText Typo="Typo.subtitle1" class="out-trimmed-text">@Term.Name</MudText>
     @if (!string.IsNullOrWhiteSpace(Term.AdditionalName)) {
         <div class="ml-3">
-            <MudText Typo="Typo.caption">@Term.AdditionalName</MudText>
+            <MudText Typo="Typo.caption" class="trimmed-text">@Term.AdditionalName</MudText>
         </div>
     }
 </MudNavLink>
@@ -18,24 +35,4 @@
     public Term Term { private get; set; } = default!;
 
     private string? LinkContent { get; set; }
-
-    protected override void OnParametersSet()
-    {
-        //base.OnParametersSet();
-
-        //if (!string.IsNullOrWhiteSpace(Term.AdditionalName)) 
-        //{
-        //    var linkContent = $"{Term.Name} ({Term.AdditionalName})";
-
-        //    LinkContent =
-        //        linkContent.Length > 25
-        //            ? linkContent.Substring(0, 20) + "...)"
-        //            : linkContent;
-
-
-        //}
-        //else {
-        //    LinkContent = Term.Name;
-        //}
-    }
 }
