@@ -1,11 +1,37 @@
-﻿@implements IAsyncDisposable
+﻿@using MudBlazor.Utilities
+@implements IAsyncDisposable
 
 @inject IJSRuntime JS
 
+<style>
+    .drawer-resize-handle {
+        position: absolute;
+        height: 100vh;
+        top: 0px;
+        z-index: 1000;
+        transition: background 0.3s ease;
+    }
+
+    .drawer-resize-handle--opened {
+        width: 3px;
+        cursor: ew-resize;
+        background: #4D4D5B;
+    }
+
+    .drawer-resize-handle--opened:hover {
+        background: #7DE67F;
+    }
+
+    .drawer-resize-handle--closed {
+        background: transparent;
+    }
+
+</style>
+
 <div @ref="_handleRef"
-     class="drawer-resize-handle"
+     class="@Classname"
+     style="@Stylename"
      @onmousedown="OnMouseDown"
-     style="width:3px; height: 100%; cursor:ew-resize; background:@(_hover ? "#1976d2" : "red"); transition: background 0.2s;"
      @onmouseover="() => _hover = true"
      @onmouseout="() => _hover = false">
 </div>
@@ -19,10 +45,23 @@
     private double _startX;
     private double _startWidth;
 
-    // [CascadingParameter]
-    // MudTheme Theme { get; set; }
-    // 
-    // [Parameter] public EventCallback<string> DrawerWidthChanged { get; set; }
+    [CascadingParameter]
+    public VocabularyMudTheme? VocabularyTheme { get; set; }
+
+    [Parameter]
+    public bool IsOpen { private get; set; }
+
+    protected string Classname =>
+        new CssBuilder("drawer-resize-handle")
+            .AddClass("drawer-resize-handle--opened", IsOpen)
+            .AddClass("drawer-resize-handle--closed", !IsOpen)
+            .Build();
+
+    protected string Stylename =>
+        new StyleBuilder()
+            .AddStyle("left", VocabularyTheme?.LayoutProperties.DrawerWidthLeft ?? VocabularyMudTheme.DRAWER_WIDTH_LEFT + "px", IsOpen)
+            .AddStyle("left", "-3px", !IsOpen)
+            .Build();
 
     protected override void OnInitialized()
     {
@@ -56,39 +95,34 @@
 
     private async Task OnMouseDown(MouseEventArgs e)
     {
+        if (!IsOpen)
+        {
+            return; // Do not allow resizing when the drawer is closed
+        }
+
         _resizing = true;
         _startX = e.ClientX;
-        _startWidth = ParsePx(/*Theme.LayoutProperties.DrawerWidthLeft*/"");
+        _startWidth = VocabularyTheme?.DrawerWidthLeft ?? VocabularyMudTheme.DRAWER_WIDTH_LEFT;
 
         await _module!.InvokeVoidAsync("register", _dotNetRef);
     }
 
     [JSInvokable]
-    public Task OnMouseMove(double clientX)
+    public void OnMouseMove(double clientX)
     {
-        // if (!_resizing) return;
-        // var delta = clientX - _startX;
-        // var newWidth = Math.Max(180, Math.Min(400, _startWidth + delta)); // min/max width
-        // Theme.LayoutProperties.DrawerWidthLeft = $"{newWidth}px";
-        // await DrawerWidthChanged.InvokeAsync(Theme.LayoutProperties.DrawerWidthLeft);
-        // StateHasChanged();
-        return Task.CompletedTask;
+        if (!_resizing || VocabularyTheme is null) return;
+        var delta = clientX - _startX;
+        var newWidth = Math.Max(180, Math.Min(400, _startWidth + delta)); // min/max width
+        VocabularyTheme.DrawerWidthLeft = (int)newWidth;
+
+        StateHasChanged();
+        return;
     }
 
     [JSInvokable]
-    public Task OnMouseUp()
+    public async Task OnMouseUp()
     {
-        return Task.CompletedTask;
-        // _resizing = false;
-        // await JS.InvokeVoidAsync("mudDrawerResize.unregister");
-    }
-
-    private double ParsePx(string px)
-    {
-        if (px.EndsWith("px") && double.TryParse(px.Replace("px", ""), out var val))
-        {
-            return val;
-        }
-        return 240;
+        _resizing = false;
+        await JS.InvokeVoidAsync("unregister");
     }
 }

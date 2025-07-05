@@ -8,7 +8,6 @@
                  ReadOnly="@true"
                  MultiSelection="true" 
                  Items="@_terms" 
-                 Sortable="true" 
                  Filterable="true" 
                  QuickFilter="@_quickFilter"
                  Hideable="true"
@@ -19,6 +18,7 @@
                  Virtualize="@true"
                  Loading="@_isLoading"
                  LoadingProgressColor="Color.Info"
+                 SortMode="SortMode.Single"
     >
         <ToolBarContent>
             <MudStack Style="width: 100%;">

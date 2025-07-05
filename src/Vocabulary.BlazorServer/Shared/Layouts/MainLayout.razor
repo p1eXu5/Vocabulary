@@ -6,6 +6,7 @@
 <MudThemeProvider IsDarkMode="@true" Theme="@VocabularyTheme"/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
+<MudPopoverProvider />
 
 <MudLayout>
     <MudAppBar Elevation="1" Dense="@_dense">
@@ -24,11 +25,10 @@
         <MudDrawerHeader>
             <MudText Typo="Typo.h6">Vocabulary</MudText>
         </MudDrawerHeader>
-        <div style="display: flex; width: 100%; flex-direction:row">
-            <NavMenu />
-            <GridSplitter />
-        </div>
+        <NavMenu />
     </MudDrawer>
+
+    <GridSplitter IsOpen="@_open" />
 
     <MudMainContent>
         <MudContainer MaxWidth="@MaxWidth.ExtraLarge">
@@ -43,7 +43,8 @@
 </MudOverlay>
 
 @code{
-    VocabularyMudTheme VocabularyTheme = new();
+    [CascadingParameter]
+    public VocabularyMudTheme VocabularyTheme { get; set; } = new();
 
     private bool _open = true;
     private bool _dense = false;

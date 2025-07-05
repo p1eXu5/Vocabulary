@@ -152,7 +152,7 @@ public partial class TermForm : IAsyncDisposable
     {
         var result = await ShowCategoryDialog();
 
-        if (!result.Canceled && Guid.TryParse(result.Data.ToString(), out Guid categoryId)) {
+        if (!result.Canceled && result.Data != null && Guid.TryParse(result.Data.ToString(), out Guid categoryId)) {
             var newCategory = await _dbContext.Categories.SingleOrDefaultAsync(c => c.Id == categoryId);
             if (newCategory is not null) {
                 _term.Categories.Add(newCategory);
@@ -201,18 +201,20 @@ public partial class TermForm : IAsyncDisposable
         }
     }
 
-    private Task<DialogResult> ShowCategoryDialog(DialogParameters? parameters = null)
+    private async Task<DialogResult> ShowCategoryDialog(DialogParameters? parameters = null)
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true, DisableBackdropClick = true };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = true };
         if (parameters is null) {
 
         }
-        var dialog =
+        var dialogTask =
             parameters is null
-                ? DialogService.Show<CategoryForm>("Create Category", options)
-                : DialogService.Show<CategoryForm>("Edit Category", parameters, options);
+                ? DialogService.ShowAsync<CategoryForm>("Create Category", options)
+                : DialogService.ShowAsync<CategoryForm>("Edit Category", parameters, options);
 
-        return dialog.Result;
+        var dialog = await dialogTask;
+
+        return (await dialog.Result)!;
     }
 
     private async Task OnValidTermSubmit()

@@ -46,6 +46,7 @@ public class Term
 
     public bool IsDeleted { get; set; }
 
+    [ConcurrencyCheck]
     public long Timestamp { get; internal set; }
 
     public ICollection<Synonym> Synonyms { get; } = new HashSet<Synonym>();

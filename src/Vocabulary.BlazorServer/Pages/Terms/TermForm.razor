@@ -21,7 +21,7 @@
             <MudExpansionPanels MultiExpansion="true" Elevation="3">
 
                 <!-- Names -->
-                <MudExpansionPanel Text="Term" @bind-IsExpanded="@_termExpanded">
+                <MudExpansionPanel Text="Term" @bind-Expanded="@_termExpanded">
                     <MudTextField Label="Term" HelperText="Max. 255 characters" @bind-Value="@_term.Name" For="@(() => _term.Name)"  
                                   DebounceInterval="500" 
                                    />
@@ -116,9 +116,9 @@
                         <LinkTable Links="@_term.Links" OnDelete="@DeleteLink"></LinkTable>
                     }
 
-                    <MudCard  Class="my-7" Style="@($"background:{_mubTheme.Palette.Dark};")">
+                    <MudCard Class="my-7" Style="@($"background:{_mubTheme.PaletteDark.Background};")">
                         <MudCardContent>
-                            <MudSwitch @bind-Checked="@_addSearchLink" Color="Color.Primary">Add Search Link</MudSwitch>
+                            <MudSwitch @bind-Value="@_addSearchLink" Color="Color.Primary">Add Search Link</MudSwitch>
                             <EditForm Model="@_newLink" Context="link" OnValidSubmit="@OnValidLinkSubmit">
                                 <DataAnnotationsValidator/>
                                 <div class="d-flex flex-row gap-4">
@@ -156,7 +156,7 @@
                             <MudTextField Label="" HelperText="Max. 255 characters" @bind-Value="@synonym.Name" For="@(() => synonym.Name)" Class="mt-3" />
                         }
                     }
-                    <MudCard  Class="mt-7" Style="@($"background:{_mubTheme.Palette.Dark};")">
+                    <MudCard  Class="mt-7" Style="@($"background:{_mubTheme.PaletteDark.Background};")">
                         <MudCardContent>
                             <EditForm Model="@_newSynonym" Context="synonym" OnValidSubmit="@OnValidSynonymSubmit">
                                 <DataAnnotationsValidator/>

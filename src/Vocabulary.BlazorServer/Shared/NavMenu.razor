@@ -6,8 +6,11 @@
 
 <MudNavMenu Class="pb-8">
     <MudToggleIconButton @bind-Toggled="@_grouping"
-                         Icon="@Icons.Material.Filled.FormatAlignJustify" Color="@Color.Warning" Title="Sort by name"
-                         ToggledIcon="@Icons.Material.Filled.FormatAlignRight" ToggledColor="@Color.Success" ToggledTitle="Grouping"
+                         Icon="@Icons.Material.Filled.FormatAlignJustify"
+                         Color="@Color.Warning"
+                         ToggledIcon="@Icons.Material.Filled.FormatAlignRight"
+                         ToggledColor="@Color.Success"
+                         title="@(_grouping ? "Grouping" : "Sort by name")"
                          />
     <span>@(_grouping ? "Term groups" : "Term list")</span>
     <MudDivider />

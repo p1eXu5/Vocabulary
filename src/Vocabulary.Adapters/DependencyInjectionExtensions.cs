@@ -10,7 +10,9 @@ public static class DependencyInjectionExtensions
 {
     public static IServiceCollection AddAdapters(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddPersistance(configuration.GetConnectionString("VocabularyDb"));
+        services.AddPersistence(
+            configuration.GetConnectionString("VocabularyDb")
+            ?? throw new InvalidOperationException("VocabularyDb connection string is not found in configuration"));
         services.AddTransient<IMarkdownParser, MarkdigParser>();
         return services;
     }

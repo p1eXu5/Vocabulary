@@ -1,13 +1,15 @@
+﻿using System.Text;
 using MediatR;
+using Microsoft.Extensions.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
 using p1eXu5.AutoProfile;
 using Quartz;
-using System.Text;
 using Vocabulary.Adapters;
 using Vocabulary.Adapters.Persistance;
 using Vocabulary.Adapters.Persistance.Models;
 using Vocabulary.BlazorServer;
+using Vocabulary.BlazorServer.Extensions;
 using Vocabulary.Descriptions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +50,8 @@ builder.Services.AddQuartz(q =>
 });
 */
 
+builder.Services.AddNotifyingCascadingValue(new VocabularyMudTheme());
+
 var app = builder.Build();
 
 LogConfiguration(app);
@@ -70,15 +74,13 @@ app.UseRouting();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-try {
-    app.Services.GetRequiredService<IDbContextFactory<VocabularyDbContext>>().CreateDbContext().Database.Migrate();
-    app.Run();
-}
-catch (Exception ex) {
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogCritical(ex, "Host could not run!");
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<VocabularyDbContext>();
+    await db.Database.MigrateAsync();
 }
 
+app.Run();
 
 
 void LogConfiguration(WebApplication app)

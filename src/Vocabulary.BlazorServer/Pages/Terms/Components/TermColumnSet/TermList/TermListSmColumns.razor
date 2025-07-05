@@ -56,7 +56,7 @@
             <MudMarkdown Value="@context.Item.Description" />
             @if (context.Item.Links.Any()) {
                 <MudText Typo="@Typo.subtitle2" Class="mt-3" >see also:</MudText>
-                <MudList Clickable="false" Class="p-0">
+                <MudList T="Link" Clickable="false" Class="p-0">
                     @foreach (var item in context.Item.Links)
                     {
                         <MudListItem>

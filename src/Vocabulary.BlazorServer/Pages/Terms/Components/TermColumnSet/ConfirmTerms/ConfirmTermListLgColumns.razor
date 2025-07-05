@@ -4,7 +4,7 @@
 
 <TemplateColumn T="ConfirmImportingTerm" Title="" SortBy="@(term => term.IsNotInDb)" >
     <CellTemplate>
-        <MudCheckBox T="bool" Checked="@context.Item.IsNotInDb" CheckedChanged="@(_ => OnIsNotInDbChanged(context.Item.ImportingTerm.Id))"></MudCheckBox>
+        <MudCheckBox T="bool" @bind-Value:get="@context.Item.IsNotInDb"  @bind-Value:set="@(_ => OnIsNotInDbChanged(context.Item.ImportingTerm.Id))"></MudCheckBox>
     </CellTemplate>
 </TemplateColumn>
 
